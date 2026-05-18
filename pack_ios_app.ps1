@@ -6,7 +6,7 @@ Write-Host "    SELA IOS APP PACKAGER FOR SIDELOADLY      " -ForegroundColor Yel
 Write-Host "==============================================" -ForegroundColor Yellow
 
 # 1. Locate the downloaded Sela iOS zip
-$downloadsFolder = [Path]::Combine([Environment]::GetFolderPath("UserProfile"), "Downloads")
+$downloadsFolder = "$env:USERPROFILE\Downloads"
 $zipPath = Join-Path $downloadsFolder "sela-ios-debug-app.zip"
 
 if (!(Test-Path $zipPath)) {
@@ -19,27 +19,25 @@ if (!(Test-Path $zipPath)) {
     exit 1
 }
 
-# 2. Setup temporary paths
+# 2. Setup paths
 $targetDir = "c:\Users\porta\Desktop\Sela"
-$tempExtract = Join-Path $targetDir ".temp_ios_extract"
 $payloadDir = Join-Path $targetDir "Payload"
+$runnerAppDir = Join-Path $payloadDir "Runner.app"
 $outputPath = Join-Path $targetDir "sela.ipa"
 
-if (Test-Path $tempExtract) { Remove-Item -Path $tempExtract -Recurse -Force | Out-Null }
 if (Test-Path $payloadDir) { Remove-Item -Path $payloadDir -Recurse -Force | Out-Null }
 if (Test-Path $outputPath) { Remove-Item -Path $outputPath -Force | Out-Null }
 
-# 3. Extract the downloaded zip
-Write-Host "`n1. Extracting iOS app artifacts from Downloads..." -ForegroundColor Cyan
-Expand-Archive -Path $zipPath -DestinationPath $tempExtract
+# 3. Create Payload/Runner.app folder
+Write-Host "`n1. Creating Payload structure..." -ForegroundColor Cyan
+New-Item -ItemType Directory -Path $runnerAppDir | Out-Null
 
-# 4. Create Payload directory and copy Runner.app
-Write-Host "2. Creating Sideloadly Payload packaging structure..." -ForegroundColor Cyan
-New-Item -ItemType Directory -Path $payloadDir | Out-Null
-Copy-Item -Path (Join-Path $tempExtract "Runner.app") -Destination $payloadDir -Recurse
+# 4. Extract downloaded zip directly into Payload/Runner.app
+Write-Host "2. Extracting iOS application files..." -ForegroundColor Cyan
+Expand-Archive -Path $zipPath -DestinationPath $runnerAppDir
 
 # 5. Compress Payload folder to sela.ipa
-Write-Host "3. Generating sela.ipa package..." -ForegroundColor Cyan
+Write-Host "3. Packaging Payload into sela.ipa..." -ForegroundColor Cyan
 $zipOutput = Join-Path $targetDir "sela.zip"
 if (Test-Path $zipOutput) { Remove-Item -Path $zipOutput -Force | Out-Null }
 Compress-Archive -Path $payloadDir -DestinationPath $zipOutput
@@ -48,7 +46,6 @@ Compress-Archive -Path $payloadDir -DestinationPath $zipOutput
 Rename-Item -Path $zipOutput -NewName "sela.ipa"
 
 # 6. Cleanup
-Remove-Item -Path $tempExtract -Recurse -Force | Out-Null
 Remove-Item -Path $payloadDir -Recurse -Force | Out-Null
 
 Write-Host "`n==============================================" -ForegroundColor Green
