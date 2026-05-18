@@ -1,0 +1,73 @@
+name: Build Sela Mobile Apps
+
+on:
+  push:
+    branches:
+      - main
+      - master
+  workflow_dispatch:
+
+jobs:
+  build-android:
+    name: Build Android APK
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Set up Java
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'zulu'
+          java-version: '17'
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+          flutter-version: '3.22.0'
+
+      - name: Install dependencies
+        run: |
+          cd mobile_app
+          flutter pub get
+
+      - name: Build Android Debug APK
+        run: |
+          cd mobile_app
+          flutter build apk --debug
+
+      - name: Upload Android APK Artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: sela-android-debug-apk
+          path: mobile_app/build/app/outputs/flutter-apk/app-debug.apk
+
+  build-ios:
+    name: Build iOS Native App
+    runs-on: macos-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+          flutter-version: '3.22.0'
+
+      - name: Install dependencies
+        run: |
+          cd mobile_app
+          flutter pub get
+
+      - name: Build iOS Application (Simulator/Debug Mode)
+        run: |
+          cd mobile_app
+          flutter build ios --debug --no-codesign
+
+      - name: Upload iOS App Artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: sela-ios-debug-app
+          path: mobile_app/build/ios/iphoneos/Runner.app

@@ -1,0 +1,9 @@
+{
+  "appId": "com.grayaly.sela",
+  "appName": "Sela",
+  "webDir": "public",
+  "server": {
+    "url": "https://graya.ly/",
+    "allowNavigation": ["graya.ly"]
+  }
+}
