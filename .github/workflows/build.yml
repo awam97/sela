@@ -1,4 +1,4 @@
-name: Build Sela Mobile Apps
+name: Build & Deploy Sela Platform
 
 on:
   push:
@@ -71,3 +71,31 @@ jobs:
         with:
           name: sela-ios-debug-app
           path: mobile_app/build/ios/iphoneos/Runner.app
+
+  deploy-backend:
+    name: Sync Webapp to Live Server
+    runs-on: ubuntu-latest
+    needs: [build-android, build-ios]
+    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Sync PHP Webapp via FTP
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ${{ secrets.FTP_SERVER }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          server-dir: ${{ secrets.FTP_SERVER_DIR }}
+          exclude: |
+            **/.git*
+            **/.git*/**
+            **/node_modules/**
+            **/vendor/**
+            **/flutter-sdk/**
+            **/android-sdk/**
+            **/mobile_app/**
+            **/.temp/**
+            **/orgsly_sela.sql
+            **/writable/**
