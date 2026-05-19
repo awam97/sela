@@ -1,7 +1,0 @@
-<?xml version='1.0' encoding='utf-8'?>
-<resources>
-    <string name="app_name">Sela</string>
-    <string name="title_activity_main">Sela</string>
-    <string name="package_name">com.grayaly.sela</string>
-    <string name="custom_url_scheme">com.grayaly.sela</string>
-</resources>
