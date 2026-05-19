@@ -339,6 +339,52 @@
                                     </div>
                                 </td>
                             </tr>
+                            <tr class="table-section-header bg-light/50"><td colspan="2" class="ps-4 py-2 fw-bold text-nile small">توصيفات خيارات تطبيق الهاتف (Mobile App Descriptions)</td></tr>
+                            <tr class="search-row">
+                                <td colspan="2" class="p-0">
+                                    <div class="row g-0">
+                                        <?php 
+                                        $mobile_descs = [
+                                            'menu_mobile_students_desc' => 'توصيف: دليل وشؤون الطلاب',
+                                            'menu_mobile_qr_scanner_desc' => 'توصيف: مسح رمز الطالب (QR)',
+                                            'menu_mobile_attendance_desc' => 'توصيف: تسجيل الحضور والغياب',
+                                            'menu_mobile_marks_desc' => 'توصيف: رصد درجات المواد',
+                                            'menu_mobile_student_photos_desc' => 'توصيف: إدارة صور الطلاب',
+                                            'menu_mobile_registrations_desc' => 'توصيف: طلبات الالتحاق الجديدة'
+                                        ];
+                                        foreach($mobile_descs as $key => $label): ?>
+                                        <div class="col-md-6 border-bottom border-end p-3 search-field">
+                                            <label class="small fw-bold d-block mb-1"><?= $label ?></label>
+                                            <input type="text" name="<?= $key ?>" value="<?= $$key ?? '' ?>" class="form-control form-control-sm border-0 bg-light">
+                                        </div>
+                                        <?php endforeach; ?>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr class="table-section-header bg-light/50"><td colspan="2" class="ps-4 py-2 fw-bold text-nile small">نصوص تسجيل الدخول والترحيب بالتطبيق (Mobile Welcome & Login Screen)</td></tr>
+                            <tr class="search-row">
+                                <td colspan="2" class="p-0">
+                                    <div class="row g-0">
+                                        <?php 
+                                        $mobile_login_dash = [
+                                            'login_welcome_title' => 'شاشة الدخول: العنوان الرئيسي',
+                                            'login_welcome_subtitle' => 'شاشة الدخول: العنوان الفرعي الترحيبي',
+                                            'login_btn_text' => 'شاشة الدخول: نص زر تسجيل الدخول',
+                                            'login_username_hint' => 'شاشة الدخول: تلميح حقل اسم المستخدم',
+                                            'login_password_hint' => 'شاشة الدخول: تلميح حقل كلمة المرور',
+                                            'dash_welcome_admin' => 'الرئيسية: ترحيب المدير العام (Super Admin)',
+                                            'dash_welcome_teacher' => 'الرئيسية: ترحيب المعلمين والموظفين',
+                                            'dash_section_title' => 'الرئيسية: عنوان قسم لوحة التحكم والإدارة'
+                                        ];
+                                        foreach($mobile_login_dash as $key => $label): ?>
+                                        <div class="col-md-6 border-bottom border-end p-3 search-field">
+                                            <label class="small fw-bold d-block mb-1"><?= $label ?></label>
+                                            <input type="text" name="<?= $key ?>" value="<?= $$key ?? '' ?>" class="form-control form-control-sm border-0 bg-light">
+                                        </div>
+                                        <?php endforeach; ?>
+                                    </div>
+                                </td>
+                            </tr>
                         </tbody>
                     </table>
                 </div>

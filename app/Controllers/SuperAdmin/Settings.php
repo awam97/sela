@@ -145,7 +145,28 @@ class Settings extends BaseController
             'footer_social_title' => 'Follow us on social media',
             'contact_address' => 'Tripoli, Libya - Ennasr Street',
             'contact_phone' => '+218 91 000 0000',
-            'contact_whatsapp' => '+218 92 000 0000'
+            'contact_whatsapp' => '+218 92 000 0000',
+            
+            // Mobile App Dynamic Phrases & Titles
+            'menu_mobile_subjects' => 'دليل المناهج والمواد',
+            'menu_mobile_marks' => 'رصد درجات المواد',
+            'menu_mobile_student_affairs' => 'شؤون الطلبة والقبول',
+            'menu_mobile_qr_scanner' => 'مسح معرف الطالب (QR)',
+            'menu_mobile_student_photos' => 'إدارة صور الطلاب',
+            'menu_mobile_students_desc' => 'البحث عن الطلاب والتحكم ببياناتهم وسجلاتهم.',
+            'menu_mobile_qr_scanner_desc' => 'امسح الرمز المربوط بالهوية للتحقق الفوري.',
+            'menu_mobile_attendance_desc' => 'رصد الحضور والغياب اليومي للطلاب بالفصول.',
+            'menu_mobile_marks_desc' => 'إدخال وتحديث درجات الطلاب في الاختبارات والأنشطة.',
+            'menu_mobile_student_photos_desc' => 'التقاط وتحديث الصور الشخصية للطلاب عبر الكاميرا.',
+            'menu_mobile_registrations_desc' => 'مراجعة واعتماد ملفات تسجيل الطلاب المنضمين حديثاً.',
+            'login_welcome_title' => 'مرحباً بك في منصة صلة',
+            'login_welcome_subtitle' => 'الرجاء تسجيل الدخول لمتابعة حسابك التعليمي',
+            'login_btn_text' => 'تسجيل الدخول',
+            'login_username_hint' => 'اسم المستخدم أو رقم الهاتف',
+            'login_password_hint' => 'كلمة المرور',
+            'dash_welcome_admin' => 'أهلاً بك مجدداً في إدارة المدرسة',
+            'dash_welcome_teacher' => 'معلمنا الفاضل، أهلاً بك في البوابة',
+            'dash_section_title' => 'لوحة التحكم والإدارة'
         ];
         
         foreach ($defaults as $key => $val) {

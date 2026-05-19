@@ -28,14 +28,14 @@ class StudentAffairsScreen extends StatelessWidget {
     final List<Map<String, dynamic>> items = [
       {
         'title': AppTitles.students,
-        'desc': 'البحث عن الطلاب والتحكم ببياناتهم وسجلاتهم.',
+        'desc': AppTitles.studentsDesc,
         'icon': Icons.supervised_user_circle_rounded,
         'color': const Color(0xff0f172a),
         'page': const StudentsScreen(),
       },
       {
         'title': AppTitles.qrScanner,
-        'desc': 'امسح الرمز المربوط بالهوية للتحقق الفوري.',
+        'desc': AppTitles.qrScannerDesc,
         'icon': Icons.qr_code_scanner_rounded,
         'color': const Color(0xff192a56),
         'page': const StudentsQrScannerScreen(),
@@ -43,28 +43,28 @@ class StudentAffairsScreen extends StatelessWidget {
       if (!isSuper)
         {
           'title': AppTitles.attendance,
-          'desc': 'رصد الحضور والغياب اليومي للطلاب بالفصول.',
+          'desc': AppTitles.attendanceDesc,
           'icon': Icons.assignment_turned_in_rounded,
           'color': const Color(0xffc5a021),
           'page': const AttendanceScreen(),
         },
       {
         'title': AppTitles.marks,
-        'desc': 'إدخال وتحديث درجات الطلاب في الاختبارات والأنشطة.',
+        'desc': AppTitles.marksDesc,
         'icon': Icons.app_registration_rounded,
         'color': const Color(0xffc5a021),
         'page': const MarksScreen(),
       },
       {
         'title': AppTitles.studentPhotos,
-        'desc': 'التقاط وتحديث الصور الشخصية للطلاب عبر الكاميرا.',
+        'desc': AppTitles.studentPhotosDesc,
         'icon': Icons.camera_enhance_rounded,
         'color': const Color(0xff0284c7),
         'page': const StudentPhotosScreen(),
       },
       {
         'title': AppTitles.registrations,
-        'desc': 'مراجعة واعتماد ملفات تسجيل الطلاب المنضمين حديثاً.',
+        'desc': AppTitles.registrationsDesc,
         'icon': Icons.person_add_rounded,
         'color': Colors.orange.shade700,
         'page': const RegistrationsScreen(),

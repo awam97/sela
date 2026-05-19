@@ -93,6 +93,20 @@ class MobileApi extends Controller
             'menu_mobile_student_affairs' => !empty(trim($settings['menu_mobile_student_affairs'] ?? '')) ? $settings['menu_mobile_student_affairs'] : 'شؤون الطلبة والقبول',
             'menu_mobile_qr_scanner' => !empty(trim($settings['menu_mobile_qr_scanner'] ?? '')) ? $settings['menu_mobile_qr_scanner'] : 'مسح معرف الطالب (QR)',
             'menu_mobile_student_photos' => !empty(trim($settings['menu_mobile_student_photos'] ?? '')) ? $settings['menu_mobile_student_photos'] : 'إدارة صور الطلاب',
+            'menu_mobile_students_desc' => !empty(trim($settings['menu_mobile_students_desc'] ?? '')) ? $settings['menu_mobile_students_desc'] : 'البحث عن الطلاب والتحكم ببياناتهم وسجلاتهم.',
+            'menu_mobile_qr_scanner_desc' => !empty(trim($settings['menu_mobile_qr_scanner_desc'] ?? '')) ? $settings['menu_mobile_qr_scanner_desc'] : 'امسح الرمز المربوط بالهوية للتحقق الفوري.',
+            'menu_mobile_attendance_desc' => !empty(trim($settings['menu_mobile_attendance_desc'] ?? '')) ? $settings['menu_mobile_attendance_desc'] : 'رصد الحضور والغياب اليومي للطلاب بالفصول.',
+            'menu_mobile_marks_desc' => !empty(trim($settings['menu_mobile_marks_desc'] ?? '')) ? $settings['menu_mobile_marks_desc'] : 'إدخال وتحديث درجات الطلاب في الاختبارات والأنشطة.',
+            'menu_mobile_student_photos_desc' => !empty(trim($settings['menu_mobile_student_photos_desc'] ?? '')) ? $settings['menu_mobile_student_photos_desc'] : 'التقاط وتحديث الصور الشخصية للطلاب عبر الكاميرا.',
+            'menu_mobile_registrations_desc' => !empty(trim($settings['menu_mobile_registrations_desc'] ?? '')) ? $settings['menu_mobile_registrations_desc'] : 'مراجعة واعتماد ملفات تسجيل الطلاب المنضمين حديثاً.',
+            'login_welcome_title' => !empty(trim($settings['login_welcome_title'] ?? '')) ? $settings['login_welcome_title'] : 'مرحباً بك في منصة صلة',
+            'login_welcome_subtitle' => !empty(trim($settings['login_welcome_subtitle'] ?? '')) ? $settings['login_welcome_subtitle'] : 'الرجاء تسجيل الدخول لمتابعة حسابك التعليمي',
+            'login_btn_text' => !empty(trim($settings['login_btn_text'] ?? '')) ? $settings['login_btn_text'] : 'تسجيل الدخول',
+            'login_username_hint' => !empty(trim($settings['login_username_hint'] ?? '')) ? $settings['login_username_hint'] : 'اسم المستخدم أو رقم الهاتف',
+            'login_password_hint' => !empty(trim($settings['login_password_hint'] ?? '')) ? $settings['login_password_hint'] : 'كلمة المرور',
+            'dash_welcome_admin' => !empty(trim($settings['dash_welcome_admin'] ?? '')) ? $settings['dash_welcome_admin'] : 'أهلاً بك مجدداً في إدارة المدرسة',
+            'dash_welcome_teacher' => !empty(trim($settings['dash_welcome_teacher'] ?? '')) ? $settings['dash_welcome_teacher'] : 'معلمنا الفاضل، أهلاً بك في البوابة',
+            'dash_section_title' => !empty(trim($settings['dash_section_title'] ?? '')) ? $settings['dash_section_title'] : 'لوحة التحكم والإدارة',
         ];
     }
 

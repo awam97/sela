@@ -172,9 +172,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              'أهلاً بك،',
+                              isSuper ? AppTitles.dashWelcomeAdmin : AppTitles.dashWelcomeTeacher,
                               style: GoogleFonts.cairo(
-                                fontSize: 14,
+                                fontSize: 13,
                                 color: const Color(0xff64748b), // Slate gray
                                 fontWeight: FontWeight.w600,
                               ),
@@ -329,7 +329,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
               // Control Panel Actions
               Text(
-                'لوحة التحكم والإدارة',
+                AppTitles.dashSectionTitle,
                 style: GoogleFonts.cairo(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,

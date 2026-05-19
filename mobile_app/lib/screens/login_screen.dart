@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../services/api_service.dart';
 import 'dashboard_screen.dart';
+import '../services/app_titles.dart';
 
 enum LoginStep { credentials, selectMethod, enterOtp }
 
@@ -243,23 +244,21 @@ class _LoginScreenState extends State<LoginScreen> {
           
           // App title
           Text(
-            'مَـنْـصَـة صِـلَـة',
+            AppTitles.loginWelcomeTitle,
             style: GoogleFonts.cairo(
-              fontSize: 30,
+              fontSize: 24,
               fontWeight: FontWeight.w900,
               color: const Color(0xff192A56),
-              letterSpacing: 2.0,
             ),
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 8),
           Text(
-            'نظام إدارة المدارس والجمعيات الذكي',
+            AppTitles.loginWelcomeSubtitle,
             style: GoogleFonts.cairo(
               fontSize: 14,
               color: const Color(0xff64748b),
               fontWeight: FontWeight.w600,
-              letterSpacing: 0.5,
             ),
             textAlign: TextAlign.center,
           ),
@@ -295,7 +294,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     textDirection: TextDirection.rtl,
                     decoration: InputDecoration(
                       filled: false,
-                      labelText: 'اسم المستخدم',
+                      labelText: AppTitles.loginUsernameHint,
                       labelStyle: GoogleFonts.cairo(color: const Color(0xff64748b), fontSize: 13),
                       prefixIcon: const Icon(Icons.person_outline_rounded, color: Color(0xffC5A021)),
                       enabledBorder: const UnderlineInputBorder(
@@ -322,7 +321,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     textDirection: TextDirection.rtl,
                     decoration: InputDecoration(
                       filled: false,
-                      labelText: 'كلمة المرور',
+                      labelText: AppTitles.loginPasswordHint,
                       labelStyle: GoogleFonts.cairo(color: const Color(0xff64748b), fontSize: 13),
                       prefixIcon: const Icon(Icons.lock_outline_rounded, color: Color(0xffC5A021)),
                       suffixIcon: IconButton(
@@ -378,7 +377,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                   )
                 : Text(
-                    'تسجيل الدخول',
+                    AppTitles.loginBtnText,
                     style: GoogleFonts.cairo(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
