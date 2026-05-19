@@ -32,7 +32,7 @@ echo ====================================================
 29: 
 30: echo.
 31: echo [3/3] Compiling signed Production App Bundle (.aab)...
-32: call flutter build appbundle --release
+32: call flutter build appbundle --release --android-skip-build-dependency-validation
 33: if %ERRORLEVEL% NEQ 0 (
 34:     echo.
 35:     echo [ERROR] Compilation failed! Review the errors above.
