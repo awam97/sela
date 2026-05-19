@@ -5,13 +5,13 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter/foundation.dart';
 
 class ApiService {
-  static const String _baseUrl = 'https://graya.ly/api';
+  static const String baseUrl = 'https://graya.ly/api';
 
   /**
    * Fetch Sela's hardcoded online web API URL
    */
   static Future<String> getBaseUrl() async {
-    return _baseUrl;
+    return baseUrl;
   }
 
   /**
@@ -44,26 +44,36 @@ class ApiService {
 
       final decoded = jsonDecode(response.body);
 
-      if (response.statusCode == 200 && decoded['status'] == 'success') {
-        // Cache session token & user details
-        final prefs = await SharedPreferences.getInstance();
-        await prefs.setString('api_token', decoded['token']);
-        await prefs.setInt('user_id', decoded['user']['id']);
-        await prefs.setString('username', decoded['user']['username']);
-        await prefs.setString('role', decoded['user']['role']);
-        await prefs.setString('name', decoded['user']['name']);
-        if (decoded['user']['school_id'] != null) {
-          await prefs.setInt('school_id', decoded['user']['school_id']);
-          await prefs.setString('school_name', decoded['user']['school_name'] ?? '');
-        }
+      if (response.statusCode == 200) {
+        if (decoded['status'] == 'success') {
+          // Cache session token & user details
+          final prefs = await SharedPreferences.getInstance();
+          await prefs.setString('api_token', decoded['token']);
+          await prefs.setInt('user_id', decoded['user']['id']);
+          await prefs.setString('username', decoded['user']['username']);
+          await prefs.setString('role', decoded['user']['role']);
+          await prefs.setString('name', decoded['user']['name']);
+          if (decoded['user']['school_id'] != null) {
+            await prefs.setInt('school_id', decoded['user']['school_id']);
+            await prefs.setString('school_name', decoded['user']['school_name'] ?? '');
+          }
 
-        return {'status': 'success', 'user': decoded['user']};
-      } else {
-        return {
-          'status': 'error',
-          'message': decoded['message'] ?? 'بيانات الدخول غير صحيحة'
-        };
+          return {'status': 'success', 'user': decoded['user']};
+        } else if (decoded['status'] == 'otp_required') {
+          return {
+            'status': 'otp_required',
+            'temp_token': decoded['temp_token'],
+            'phone': decoded['phone'] ?? '',
+            'email': decoded['email'] ?? '',
+            'wa_enabled': decoded['wa_enabled'] ?? false,
+          };
+        }
       }
+      
+      return {
+        'status': 'error',
+        'message': decoded['message'] ?? 'بيانات الدخول غير صحيحة'
+      };
     } catch (e) {
       return {
         'status': 'error',
@@ -111,7 +121,8 @@ class ApiService {
         return {
           'status': 'success',
           'students': decoded['students'] ?? [],
-          'classes': decoded['classes'] ?? []
+          'classes': decoded['classes'] ?? [],
+          'sections': decoded['sections'] ?? []
         };
       }
       return {'status': 'error', 'message': decoded['message'] ?? 'تعذر تحميل قائمة الطلاب'};
@@ -395,11 +406,292 @@ class ApiService {
   }
 
   /**
+   * Identify Student by QR Code / ID
+   */
+  static Future<Map<String, dynamic>> identifyStudent(int studentId) async {
+    try {
+      final url = await getBaseUrl();
+      final headers = await _getHeaders();
+      final response = await http.get(
+        Uri.parse('$url/students/identify/$studentId'),
+        headers: headers,
+      );
+
+      final decoded = jsonDecode(response.body);
+      if (response.statusCode == 200 && decoded['status'] == 'success') {
+        return {'status': 'success', 'data': decoded['data']};
+      }
+      return {
+        'status': 'error',
+        'message': decoded['message'] ?? 'فشل التعرف على الطالب'
+      };
+    } catch (e) {
+      return {
+        'status': 'error',
+        'message': 'حدث خطأ أثناء الاتصال بالخادم والتعرف على الطالب'
+      };
+    }
+  }
+
+  /**
    * Clear Session and Logout
    */
   static Future<void> logout() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.clear();
+  }
+
+  /**
+   * Fetch Authenticated Admin/Teacher Profile details
+   */
+  static Future<Map<String, dynamic>> getProfile() async {
+    try {
+      final url = await getBaseUrl();
+      final headers = await _getHeaders();
+      final response = await http.get(
+        Uri.parse('$url/profile'),
+        headers: headers,
+      );
+
+      final decoded = jsonDecode(response.body);
+      if (response.statusCode == 200 && decoded['status'] == 'success') {
+        return {'status': 'success', 'user': decoded['user']};
+      }
+      return {
+        'status': 'error',
+        'message': decoded['message'] ?? 'فشل تحميل الملف الشخصي'
+      };
+    } catch (e) {
+      return {
+        'status': 'error',
+        'message': 'حدث خطأ أثناء تحميل بيانات الملف الشخصي'
+      };
+    }
+  }
+
+  /**
+   * Update Authenticated Admin/Teacher Profile details
+   */
+  static Future<Map<String, dynamic>> updateProfile(Map<String, dynamic> data) async {
+    try {
+      final url = await getBaseUrl();
+      final headers = await _getHeaders();
+      final response = await http.post(
+        Uri.parse('$url/profile/update'),
+        headers: headers,
+        body: jsonEncode(data),
+      );
+
+      final decoded = jsonDecode(response.body);
+      if (response.statusCode == 200 && decoded['status'] == 'success') {
+        // Update local cached name/username if changed
+        final prefs = await SharedPreferences.getInstance();
+        if (data.containsKey('name')) {
+          await prefs.setString('name', data['name']);
+        }
+        if (data.containsKey('username')) {
+          await prefs.setString('username', data['username']);
+        }
+        return {'status': 'success', 'message': decoded['message'] ?? 'تم تحديث الملف الشخصي بنجاح'};
+      }
+      return {
+        'status': 'error',
+        'message': decoded['message'] ?? 'فشل تحديث الملف الشخصي'
+      };
+    } catch (e) {
+      return {
+        'status': 'error',
+        'message': 'حدث خطأ أثناء تحديث بيانات الملف الشخصي'
+      };
+    }
+  }
+
+  /**
+   * Fetch Finance Invoices / Payments
+   */
+  static Future<Map<String, dynamic>> getInvoices() async {
+    try {
+      final url = await getBaseUrl();
+      final headers = await _getHeaders();
+      final response = await http.get(
+        Uri.parse('$url/finance/invoices'),
+        headers: headers,
+      );
+
+      final decoded = jsonDecode(response.body);
+      if (response.statusCode == 200 && decoded['status'] == 'success') {
+        return {
+          'status': 'success',
+          'invoices': decoded['invoices'] ?? []
+        };
+      }
+      return {
+        'status': 'error',
+        'message': decoded['message'] ?? 'فشل تحميل قائمة الفواتير والمدفوعات'
+      };
+    } catch (e) {
+      return {
+        'status': 'error',
+        'message': 'حدث خطأ أثناء الاتصال بالخادم لتحميل البيانات المالية'
+      };
+    }
+  }
+
+  /**
+   * Fetch Marks Registration Filters (Classes, Sections, Subjects)
+   */
+  static Future<Map<String, dynamic>> getMarksOptions() async {
+    try {
+      final url = await getBaseUrl();
+      final headers = await _getHeaders();
+      final response = await http.get(
+        Uri.parse('$url/academic/marks/options'),
+        headers: headers,
+      );
+
+      final decoded = jsonDecode(response.body);
+      if (response.statusCode == 200 && decoded['status'] == 'success') {
+        return {
+          'status': 'success',
+          'classes': decoded['classes'] ?? [],
+          'sections': decoded['sections'] ?? [],
+          'subjects': decoded['subjects'] ?? [],
+          'current_year': decoded['current_year'] ?? '',
+        };
+      }
+      return {
+        'status': 'error',
+        'message': decoded['message'] ?? 'فشل تحميل فلاتر رصد الدرجات'
+      };
+    } catch (e) {
+      return {
+        'status': 'error',
+        'message': 'حدث خطأ في الاتصال بالخادم أثناء تحميل خيارات الرصد'
+      };
+    }
+  }
+
+  /**
+   * Fetch Students and Distribution details for a specific subject, class, and section
+   */
+  static Future<Map<String, dynamic>> getMarksList(
+      dynamic classId, dynamic sectionId, dynamic subjectId) async {
+    try {
+      final url = await getBaseUrl();
+      final headers = await _getHeaders();
+      final response = await http.get(
+        Uri.parse('$url/academic/marks/list?class_id=$classId&section_id=$sectionId&subject_id=$subjectId'),
+        headers: headers,
+      );
+
+      final decoded = jsonDecode(response.body);
+      if (response.statusCode == 200 && decoded['status'] == 'success') {
+        return {
+          'status': 'success',
+          'distribution': decoded['distribution'] ?? [],
+          'students': decoded['students'] ?? [],
+        };
+      }
+      return {
+        'status': 'error',
+        'message': decoded['message'] ?? 'فشل تحميل قائمة الطلاب والدرجات'
+      };
+    } catch (e) {
+      return {
+        'status': 'error',
+        'message': 'حدث خطأ في الاتصال بالخادم أثناء جلب قائمة الطلاب'
+      };
+    }
+  }
+
+  /**
+   * Submit student marks details to the backend database
+   */
+  static Future<Map<String, dynamic>> saveMarks({
+    required dynamic classId,
+    required dynamic sectionId,
+    required dynamic subjectId,
+    required List<Map<String, dynamic>> marks,
+  }) async {
+    try {
+      final url = await getBaseUrl();
+      final headers = await _getHeaders();
+      final body = jsonEncode({
+        'class_id': classId,
+        'section_id': sectionId,
+        'subject_id': subjectId,
+        'marks': marks,
+      });
+
+      final response = await http.post(
+        Uri.parse('$url/academic/marks/save'),
+        headers: headers,
+        body: body,
+      );
+
+      final decoded = jsonDecode(response.body);
+      if (response.statusCode == 200 && decoded['status'] == 'success') {
+        return {
+          'status': 'success',
+          'message': decoded['message'] ?? 'تم رصد وحفظ الدرجات بنجاح',
+        };
+      }
+      return {
+        'status': 'error',
+        'message': decoded['message'] ?? 'فشل حفظ ورصد الدرجات',
+      };
+    } catch (e) {
+      return {
+        'status': 'error',
+        'message': 'حدث خطأ في الاتصال بالخادم أثناء عملية حفظ الدرجات',
+      };
+    }
+  }
+
+  /**
+   * Upload a profile photo for a specific student using multipart request
+   */
+  static Future<Map<String, dynamic>> uploadStudentPhoto(int studentId, String filePath) async {
+    try {
+      final url = await getBaseUrl();
+      final prefs = await SharedPreferences.getInstance();
+      final token = prefs.getString('api_token') ?? '';
+
+      final request = http.MultipartRequest(
+        'POST',
+        Uri.parse('$url/students/upload_photo'),
+      );
+
+      // Add authorization header
+      request.headers['Authorization'] = 'Bearer $token';
+
+      // Add fields
+      request.fields['student_id'] = studentId.toString();
+
+      // Add image file
+      request.files.add(await http.MultipartFile.fromPath('photo', filePath));
+
+      final streamedResponse = await request.send();
+      final response = await http.Response.fromStream(streamedResponse);
+
+      final decoded = jsonDecode(response.body);
+      if (response.statusCode == 200 && decoded['status'] == 'success') {
+        return {
+          'status': 'success',
+          'message': decoded['message'] ?? 'تم حفظ الصورة بنجاح',
+          'image_url': decoded['image_url'] ?? '',
+        };
+      }
+      return {
+        'status': 'error',
+        'message': decoded['message'] ?? 'فشل تحميل الصورة',
+      };
+    } catch (e) {
+      return {
+        'status': 'error',
+        'message': 'حدث خطأ في الاتصال بالخادم أثناء رفع الصورة',
+      };
+    }
   }
 }
 

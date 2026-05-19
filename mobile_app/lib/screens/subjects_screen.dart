@@ -76,16 +76,11 @@ class _SubjectsScreenState extends State<SubjectsScreen> {
           // 1. Sleek Search & Class Filter Panel
           Container(
             padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
-            decoration: BoxDecoration(
+            decoration: const BoxDecoration(
               color: Colors.white,
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.02),
-                  spreadRadius: 1,
-                  blurRadius: 10,
-                  offset: const Offset(0, 4),
-                ),
-              ],
+              border: Border(
+                bottom: BorderSide(color: Color(0xffe2e8f0), width: 1),
+              ),
             ),
             child: Column(
               children: [
@@ -100,7 +95,7 @@ class _SubjectsScreenState extends State<SubjectsScreen> {
                   decoration: InputDecoration(
                     hintText: 'ابحث عن مادة أو معلم...',
                     hintStyle: GoogleFonts.cairo(color: const Color(0xff94a3b8), fontSize: 13),
-                    prefixIcon: const Icon(Icons.search_rounded, color: Color(0xffc5a021)),
+                    prefixIcon: const Icon(Icons.search_rounded, color: Color(0xff192A56)),
                     filled: true,
                     fillColor: const Color(0xfff8fafc),
                     contentPadding: const EdgeInsets.symmetric(vertical: 12),
@@ -138,7 +133,7 @@ class _SubjectsScreenState extends State<SubjectsScreen> {
                               style: GoogleFonts.cairo(
                                 fontSize: 12,
                                 fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                                color: isSelected ? Colors.white : const Color(0xff475569),
+                                color: isSelected ? Colors.white : const Color(0xff192A56),
                               ),
                             ),
                             selected: isSelected,
@@ -148,10 +143,13 @@ class _SubjectsScreenState extends State<SubjectsScreen> {
                                 _applyFilters();
                               });
                             },
-                            selectedColor: const Color(0xff0f172a),
-                            backgroundColor: const Color(0xfff1f5f9),
+                            selectedColor: const Color(0xff192A56),
+                            backgroundColor: Colors.white,
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(30),
+                              side: BorderSide(
+                                color: isSelected ? const Color(0xff192A56) : const Color(0xffe2e8f0),
+                              ),
                             ),
                             elevation: 0,
                             pressElevation: 0,
@@ -167,7 +165,7 @@ class _SubjectsScreenState extends State<SubjectsScreen> {
           // 2. Loading State / Subjects Roster Listing
           Expanded(
             child: _isLoading
-                ? const Center(child: CircularProgressIndicator(color: Color(0xff0f172a)))
+                ? const Center(child: CircularProgressIndicator(color: Color(0xff192a56)))
                 : _errorMessage != null
                     ? Center(
                         child: Text(
@@ -189,12 +187,12 @@ class _SubjectsScreenState extends State<SubjectsScreen> {
                                       const Icon(
                                         Icons.library_books_rounded,
                                         size: 64,
-                                        color: Colors.black12,
+                                        color: Color(0xffcbd5e1),
                                       ),
                                       const SizedBox(height: 16),
                                       Text(
                                         'لا يوجد مواد دراسية مطابقة لبحثك',
-                                        style: GoogleFonts.cairo(color: Colors.grey.shade500, fontSize: 14),
+                                        style: GoogleFonts.cairo(color: const Color(0xff94a3b8), fontSize: 14),
                                       ),
                                     ],
                                   ),
@@ -211,6 +209,12 @@ class _SubjectsScreenState extends State<SubjectsScreen> {
 
                                   return Card(
                                     margin: const EdgeInsets.only(bottom: 16),
+                                    elevation: 0,
+                                    color: Colors.white,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(16),
+                                      side: const BorderSide(color: Color(0xffe2e8f0), width: 1),
+                                    ),
                                     child: Padding(
                                       padding: const EdgeInsets.all(16),
                                       child: Column(
@@ -225,14 +229,15 @@ class _SubjectsScreenState extends State<SubjectsScreen> {
                                                 style: GoogleFonts.cairo(
                                                   fontSize: 16,
                                                   fontWeight: FontWeight.w900,
-                                                  color: const Color(0xff0f172a),
+                                                  color: const Color(0xff192a56),
                                                 ),
                                               ),
                                               Container(
                                                 padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                                                 decoration: BoxDecoration(
-                                                  color: const Color(0xffc5a021).withOpacity(0.12),
+                                                  color: const Color(0xffFFF7ED),
                                                   borderRadius: BorderRadius.circular(30),
+                                                  border: Border.all(color: const Color(0xfffed7aa), width: 1),
                                                 ),
                                                 child: Text(
                                                   subject['class_name'] ?? 'صف دراسي',
@@ -252,14 +257,14 @@ class _SubjectsScreenState extends State<SubjectsScreen> {
                                             children: [
                                               Container(
                                                 padding: const EdgeInsets.all(8),
-                                                decoration: BoxDecoration(
+                                                decoration: const BoxDecoration(
                                                   shape: BoxShape.circle,
-                                                  color: const Color(0xff0f172a).withOpacity(0.06),
+                                                  color: Color(0xfff1f5f9),
                                                 ),
                                                 child: const Icon(
                                                   Icons.person_outline_rounded,
                                                   size: 18,
-                                                  color: Color(0xff0f172a),
+                                                  color: Color(0xff475569),
                                                 ),
                                               ),
                                               const SizedBox(width: 10),
@@ -306,7 +311,7 @@ class _SubjectsScreenState extends State<SubjectsScreen> {
                                                         style: GoogleFonts.cairo(
                                                           fontSize: 16,
                                                           fontWeight: FontWeight.w900,
-                                                          color: const Color(0xff0f172a),
+                                                          color: const Color(0xff192a56),
                                                         ),
                                                       ),
                                                     ],
@@ -320,9 +325,9 @@ class _SubjectsScreenState extends State<SubjectsScreen> {
                                                 child: Container(
                                                   padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 12),
                                                   decoration: BoxDecoration(
-                                                    color: const Color(0xfff8fafc),
+                                                    color: const Color(0xffFFF7ED),
                                                     borderRadius: BorderRadius.circular(12),
-                                                    border: Border.all(color: const Color(0xffe2e8f0)),
+                                                    border: Border.all(color: const Color(0xfffed7aa)),
                                                   ),
                                                   child: Column(
                                                     crossAxisAlignment: CrossAxisAlignment.center,

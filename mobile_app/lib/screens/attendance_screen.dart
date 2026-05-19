@@ -152,23 +152,25 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
                           children: [
                             Text(
                               'الفصل الدراسي',
-                              style: GoogleFonts.cairo(fontSize: 12, color: Colors.grey.shade600, fontWeight: FontWeight.bold),
+                              style: GoogleFonts.cairo(fontSize: 12, color: const Color(0xff64748b), fontWeight: FontWeight.bold),
                             ),
                             const SizedBox(height: 4),
                             Container(
                               padding: const EdgeInsets.symmetric(horizontal: 12),
                               decoration: BoxDecoration(
+                                color: const Color(0xfff8fafc),
                                 borderRadius: BorderRadius.circular(12),
-                                border: Border.all(color: Colors.grey.shade300),
+                                border: Border.all(color: const Color(0xffe2e8f0)),
                               ),
                               child: DropdownButtonHideUnderline(
                                 child: DropdownButton<int>(
                                   value: _selectedClassId,
                                   isExpanded: true,
+                                  dropdownColor: Colors.white,
                                   items: _classes.map((c) {
                                     return DropdownMenuItem<int>(
                                       value: int.tryParse(c['class_id'].toString()),
-                                      child: Text(c['name'] ?? '', style: GoogleFonts.cairo(fontSize: 14)),
+                                      child: Text(c['name'] ?? '', style: GoogleFonts.cairo(fontSize: 14, color: const Color(0xff192A56), fontWeight: FontWeight.bold)),
                                     );
                                   }).toList(),
                                   onChanged: (value) {
@@ -192,7 +194,7 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
                           children: [
                             Text(
                               'تاريخ التحضير',
-                              style: GoogleFonts.cairo(fontSize: 12, color: Colors.grey.shade600, fontWeight: FontWeight.bold),
+                              style: GoogleFonts.cairo(fontSize: 12, color: const Color(0xff64748b), fontWeight: FontWeight.bold),
                             ),
                             const SizedBox(height: 4),
                             InkWell(
@@ -213,15 +215,16 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
                               child: Container(
                                 padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
                                 decoration: BoxDecoration(
+                                  color: const Color(0xfff8fafc),
                                   borderRadius: BorderRadius.circular(12),
-                                  border: Border.all(color: Colors.grey.shade300),
+                                  border: Border.all(color: const Color(0xffe2e8f0)),
                                 ),
                                 child: Row(
                                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                   children: [
                                     Text(
                                       intl.DateFormat('yyyy/MM/dd').format(_selectedDate),
-                                      style: GoogleFonts.cairo(fontSize: 14),
+                                      style: GoogleFonts.cairo(fontSize: 14, color: const Color(0xff192A56), fontWeight: FontWeight.bold),
                                     ),
                                     const Icon(Icons.calendar_month_rounded, color: Color(0xffc5a021), size: 20),
                                   ],
@@ -234,7 +237,7 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
                     ],
                   ),
                 ),
-                const Divider(height: 1, thickness: 1),
+                const Divider(height: 1, thickness: 1, color: Color(0xffe2e8f0)),
 
                 // 2. Roster List View
                 Expanded(
@@ -244,7 +247,7 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
                           ? Center(
                               child: Text(
                                 'لا يوجد طلاب مسجلين في هذا الصف الدراسي',
-                                style: GoogleFonts.cairo(fontSize: 14, color: Colors.grey),
+                                style: GoogleFonts.cairo(fontSize: 14, color: const Color(0xff94a3b8)),
                               ),
                             )
                           : ListView.builder(
@@ -257,9 +260,11 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
 
                                 return Card(
                                   margin: const EdgeInsets.only(bottom: 12),
+                                  elevation: 0,
+                                  color: Colors.white,
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(16),
-                                    side: BorderSide(color: Colors.grey.shade200),
+                                    side: const BorderSide(color: Color(0xffe2e8f0), width: 1),
                                   ),
                                   child: Padding(
                                     padding: const EdgeInsets.all(12),
@@ -284,11 +289,11 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
                                         // Three-State Selector row
                                         Row(
                                           children: [
-                                            _buildStateButton(studentId, 1, 'حاضر', Colors.green, status == 1),
+                                            _buildStateButton(studentId, 1, 'حاضر', const Color(0xff16a34a), status == 1),
                                             const SizedBox(width: 6),
-                                            _buildStateButton(studentId, 2, 'غائب', Colors.red, status == 2),
+                                            _buildStateButton(studentId, 2, 'غائب', const Color(0xffdc2626), status == 2),
                                             const SizedBox(width: 6),
-                                            _buildStateButton(studentId, 3, 'متأخر', Colors.amber.shade700, status == 3),
+                                            _buildStateButton(studentId, 3, 'متأخر', const Color(0xffd97706), status == 3),
                                           ],
                                         ),
                                       ],
@@ -304,22 +309,18 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
           ? null
           : Container(
               padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
+              decoration: const BoxDecoration(
                 color: Colors.white,
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.05),
-                    spreadRadius: 2,
-                    blurRadius: 10,
-                    offset: const Offset(0, -2),
-                  ),
-                ],
+                border: Border(
+                  top: BorderSide(color: Color(0xffe2e8f0), width: 1),
+                ),
               ),
               child: ElevatedButton(
                 onPressed: _isSaving ? null : _handleSaveAttendance,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xff192a56),
                   foregroundColor: Colors.white,
+                  elevation: 0,
                   padding: const EdgeInsets.symmetric(vertical: 14),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(16),
@@ -341,6 +342,17 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
   }
 
   Widget _buildStateButton(int studentId, int targetStatus, String label, Color color, bool isSelected) {
+    Color bgSelectionColor = Colors.transparent;
+    if (isSelected) {
+      if (targetStatus == 1) {
+        bgSelectionColor = const Color(0xfff0fdf4);
+      } else if (targetStatus == 2) {
+        bgSelectionColor = const Color(0xfffef2f2);
+      } else if (targetStatus == 3) {
+        bgSelectionColor = const Color(0xfffffbeb);
+      }
+    }
+
     return InkWell(
       onTap: () {
         setState(() {
@@ -352,10 +364,10 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
         duration: const Duration(milliseconds: 200),
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
         decoration: BoxDecoration(
-          color: isSelected ? color.withOpacity(0.15) : Colors.transparent,
+          color: bgSelectionColor,
           borderRadius: BorderRadius.circular(30),
           border: Border.all(
-            color: isSelected ? color : Colors.grey.shade300,
+            color: isSelected ? color : const Color(0xffe2e8f0),
             width: isSelected ? 1.5 : 1.0,
           ),
         ),
@@ -365,7 +377,7 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
               width: 8,
               height: 8,
               decoration: BoxDecoration(
-                color: isSelected ? color : Colors.grey.shade400,
+                color: isSelected ? color : const Color(0xffcbd5e1),
                 shape: BoxShape.circle,
               ),
             ),
@@ -374,7 +386,7 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
               label,
               style: GoogleFonts.cairo(
                 fontSize: 10,
-                color: isSelected ? color : Colors.grey.shade600,
+                color: isSelected ? color : const Color(0xff64748b),
                 fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
               ),
             ),

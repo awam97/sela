@@ -218,10 +218,11 @@ class _RegistrationsScreenState extends State<RegistrationsScreen> {
 
         return Card(
           margin: const EdgeInsets.only(bottom: 16),
-          elevation: 2,
+          elevation: 0,
+          color: Colors.white,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(20),
-            side: BorderSide(color: Colors.grey.shade200),
+            side: const BorderSide(color: Color(0xffe2e8f0), width: 1),
           ),
           child: Padding(
             padding: const EdgeInsets.all(16),
@@ -233,10 +234,10 @@ class _RegistrationsScreenState extends State<RegistrationsScreen> {
                   children: [
                     CircleAvatar(
                       radius: 22,
-                      backgroundColor: isMale ? Colors.blue.shade50 : Colors.pink.shade50,
+                      backgroundColor: isMale ? const Color(0xffeff6ff) : const Color(0xfffdf2f8),
                       child: Icon(
                         isMale ? Icons.face_rounded : Icons.face_3_rounded,
-                        color: isMale ? Colors.blue.shade700 : Colors.pink.shade700,
+                        color: isMale ? const Color(0xff2563eb) : const Color(0xffdb2777),
                         size: 26,
                       ),
                     ),
@@ -255,7 +256,7 @@ class _RegistrationsScreenState extends State<RegistrationsScreen> {
                           ),
                           Text(
                             request['school_name'] ?? 'المدرسة الافتراضية',
-                            style: GoogleFonts.cairo(fontSize: 11, color: Colors.grey.shade500),
+                            style: GoogleFonts.cairo(fontSize: 11, color: const Color(0xff94a3b8)),
                           ),
                         ],
                       ),
@@ -264,7 +265,7 @@ class _RegistrationsScreenState extends State<RegistrationsScreen> {
                 ),
                 const Padding(
                   padding: EdgeInsets.symmetric(vertical: 12),
-                  child: Divider(height: 1, thickness: 0.5),
+                  child: Divider(height: 1, thickness: 0.5, color: Color(0xffe2e8f0)),
                 ),
 
                 // Request specifications
@@ -276,7 +277,7 @@ class _RegistrationsScreenState extends State<RegistrationsScreen> {
                       children: [
                         Text(
                           'الصف الدراسي المطلوب',
-                          style: GoogleFonts.cairo(fontSize: 10, color: Colors.grey.shade500),
+                          style: GoogleFonts.cairo(fontSize: 10, color: const Color(0xff94a3b8)),
                         ),
                         Text(
                           request['class_name'] ?? 'غير محدد',
@@ -289,7 +290,7 @@ class _RegistrationsScreenState extends State<RegistrationsScreen> {
                       children: [
                         Text(
                           'هاتف ولي الأمر',
-                          style: GoogleFonts.cairo(fontSize: 10, color: Colors.grey.shade500),
+                          style: GoogleFonts.cairo(fontSize: 10, color: const Color(0xff94a3b8)),
                         ),
                         Text(
                           request['phone'] ?? '',
@@ -317,7 +318,7 @@ class _RegistrationsScreenState extends State<RegistrationsScreen> {
                       Expanded(
                         child: ElevatedButton(
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.green.shade600,
+                            backgroundColor: const Color(0xff16a34a),
                             foregroundColor: Colors.white,
                             elevation: 0,
                             padding: const EdgeInsets.symmetric(vertical: 10),
@@ -343,8 +344,8 @@ class _RegistrationsScreenState extends State<RegistrationsScreen> {
                         child: OutlinedButton(
                           onPressed: () => _handleReject(id, studentName),
                           style: OutlinedButton.styleFrom(
-                            foregroundColor: Colors.redAccent,
-                            side: BorderSide(color: Colors.redAccent.withOpacity(0.5)),
+                            foregroundColor: const Color(0xffdc2626),
+                            side: const BorderSide(color: Color(0xfffca5a5)),
                             padding: const EdgeInsets.symmetric(vertical: 10),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(12),

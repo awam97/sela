@@ -462,22 +462,22 @@ class _StudentsScreenState extends State<StudentsScreen> {
               },
               decoration: InputDecoration(
                 hintText: 'ابحث عن اسم الطالب أو رقم الهاتف...',
-                hintStyle: GoogleFonts.cairo(color: Colors.grey.shade400, fontSize: 13),
+                hintStyle: GoogleFonts.cairo(color: const Color(0xff94a3b8), fontSize: 13),
                 prefixIcon: const Icon(Icons.search_rounded, color: Color(0xff192a56)),
                 filled: true,
                 fillColor: Colors.white,
                 contentPadding: const EdgeInsets.symmetric(vertical: 12),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(16),
-                  borderSide: BorderSide(color: Colors.grey.shade200),
+                  borderSide: const BorderSide(color: Color(0xffe2e8f0)),
                 ),
                 enabledBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(16),
-                  borderSide: BorderSide(color: Colors.grey.shade200),
+                  borderSide: const BorderSide(color: Color(0xffe2e8f0)),
                 ),
                 focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(16),
-                  borderSide: const BorderSide(color: Color(0xffc5a021), width: 2),
+                  borderSide: const BorderSide(color: Color(0xffc5a021), width: 1.5),
                 ),
               ),
             ),
@@ -514,7 +514,7 @@ class _StudentsScreenState extends State<StudentsScreen> {
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(20),
                         side: BorderSide(
-                          color: isSelected ? const Color(0xff192a56) : Colors.grey.shade300,
+                          color: isSelected ? const Color(0xff192a56) : const Color(0xffe2e8f0),
                         ),
                       ),
                       onSelected: (_) {
@@ -610,10 +610,11 @@ class _StudentsScreenState extends State<StudentsScreen> {
 
         return Card(
           margin: const EdgeInsets.only(bottom: 12),
-          elevation: 1.5,
+          elevation: 0,
+          color: Colors.white,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(16),
-            side: BorderSide(color: Colors.grey.shade200),
+            side: const BorderSide(color: Color(0xffe2e8f0), width: 1),
           ),
           child: Padding(
             padding: const EdgeInsets.all(14),
@@ -622,10 +623,10 @@ class _StudentsScreenState extends State<StudentsScreen> {
                 // Avatar representation based on Gender
                 CircleAvatar(
                   radius: 26,
-                  backgroundColor: isMale ? Colors.blue.shade50 : Colors.pink.shade50,
+                  backgroundColor: isMale ? const Color(0xffeff6ff) : const Color(0xfffdf2f8),
                   child: Icon(
                     isMale ? Icons.face_rounded : Icons.face_3_rounded,
-                    color: isMale ? Colors.blue.shade700 : Colors.pink.shade700,
+                    color: isMale ? const Color(0xff2563eb) : const Color(0xffdb2777),
                     size: 32,
                   ),
                 ),
@@ -650,14 +651,14 @@ class _StudentsScreenState extends State<StudentsScreen> {
                           Container(
                             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                             decoration: BoxDecoration(
-                              color: Colors.grey.shade100,
+                              color: const Color(0xfff1f5f9),
                               borderRadius: BorderRadius.circular(6),
                             ),
                             child: Text(
                               student['class_name'] ?? 'غير مصنف',
                               style: GoogleFonts.cairo(
                                 fontSize: 11,
-                                color: Colors.grey.shade700,
+                                color: const Color(0xff475569),
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
@@ -666,7 +667,7 @@ class _StudentsScreenState extends State<StudentsScreen> {
                           if (student['phone'] != null && student['phone'].toString().isNotEmpty)
                             Text(
                               student['phone'].toString(),
-                              style: const TextStyle(fontSize: 12, color: Colors.grey),
+                              style: const TextStyle(fontSize: 12, color: Color(0xff64748b)),
                             ),
                         ],
                       ),
@@ -681,13 +682,13 @@ class _StudentsScreenState extends State<StudentsScreen> {
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                       decoration: BoxDecoration(
-                        color: isActive ? Colors.green.shade50 : Colors.red.shade50,
+                        color: isActive ? const Color(0xfff0fdf4) : const Color(0xfffef2f2),
                         borderRadius: BorderRadius.circular(10),
                       ),
                       child: Text(
                         isActive ? 'نشط' : 'معطل',
                         style: GoogleFonts.cairo(
-                          color: isActive ? Colors.green.shade700 : Colors.red.shade700,
+                          color: isActive ? const Color(0xff16a34a) : const Color(0xffdc2626),
                           fontSize: 10,
                           fontWeight: FontWeight.bold,
                         ),

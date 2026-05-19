@@ -471,6 +471,14 @@ class Auth extends Controller
 
     private function shouldBypassOtp($user, $role)
     {
+        $db = \Config\Database::connect();
+        $otpSetting = $db->table('settings')->where('type', 'whatsapp_otp_enabled')->get()->getRowArray();
+        $otpEnabledVal = strtolower($otpSetting['description'] ?? 'false');
+        $otpEnabled = in_array($otpEnabledVal, ['true', '1', 'on', 'yes']);
+        if (!$otpEnabled) {
+            return true;
+        }
+
         $cookie = $_COOKIE['sela_session_tracker'] ?? null;
         if (!$cookie) {
             return false;

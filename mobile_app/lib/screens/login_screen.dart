@@ -58,6 +58,15 @@ class _LoginScreenState extends State<LoginScreen> {
       });
 
       if (result['status'] == 'success') {
+        final role = result['user']['role'];
+        if (role == 'super_admin') {
+          setState(() {
+            _errorMessage = 'مدير النظام العام غير مصرح له بالدخول لتطبيق الهاتف المحمول';
+          });
+          ApiService.logout();
+          return;
+        }
+
         // Direct successful login (OTP disabled/bypassed)
         Navigator.of(context).pushReplacement(
           MaterialPageRoute(builder: (context) => const DashboardScreen()),
@@ -132,6 +141,15 @@ class _LoginScreenState extends State<LoginScreen> {
       });
 
       if (result['status'] == 'success') {
+        final role = result['user']['role'];
+        if (role == 'super_admin') {
+          setState(() {
+            _errorMessage = 'مدير النظام العام غير مصرح له بالدخول لتطبيق الهاتف المحمول';
+            _currentStep = LoginStep.credentials;
+          });
+          ApiService.logout();
+          return;
+        }
         Navigator.of(context).pushReplacement(
           MaterialPageRoute(builder: (context) => const DashboardScreen()),
         );
@@ -179,19 +197,45 @@ class _LoginScreenState extends State<LoginScreen> {
         children: [
           const Spacer(flex: 2),
           
-          // Sela Gold Geometric Logo Header
+          // Sela Premium Geometric Logo Header
           Center(
             child: Container(
-              padding: const EdgeInsets.all(18),
+              padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                border: Border.all(color: const Color(0xffc5a021), width: 3),
-                color: const Color(0xff192a56).withOpacity(0.4),
+                border: Border.all(color: const Color(0xffC5A021).withOpacity(0.3), width: 1.5), // Official Sela Gold border
+                color: Colors.white,
+                boxShadow: [
+                  BoxShadow(
+                    color: const Color(0xff192A56).withOpacity(0.04),
+                    blurRadius: 20,
+                    spreadRadius: 2,
+                  ),
+                ],
               ),
-              child: const Icon(
-                Icons.school_rounded,
-                size: 72,
-                color: Color(0xffc5a021), // Sela Gold
+              child: ClipOval(
+                child: Image.network(
+                  'https://graya.ly/public/uploads/logo.png', // Premium logo with colors
+                  width: 90,
+                  height: 90,
+                  fit: BoxFit.contain,
+                  loadingBuilder: (context, child, loadingProgress) {
+                    if (loadingProgress == null) return child;
+                    return Container(
+                      width: 90,
+                      height: 90,
+                      alignment: Alignment.center,
+                      child: const CircularProgressIndicator(color: Color(0xffC5A021)),
+                    );
+                  },
+                  errorBuilder: (context, error, stackTrace) {
+                    return const Icon(
+                      Icons.school_rounded,
+                      size: 70,
+                      color: Color(0xff192A56),
+                    );
+                  },
+                ),
               ),
             ),
           ),
@@ -201,10 +245,10 @@ class _LoginScreenState extends State<LoginScreen> {
           Text(
             'مَـنْـصَـة صِـلَـة',
             style: GoogleFonts.cairo(
-              fontSize: 28,
+              fontSize: 30,
               fontWeight: FontWeight.w900,
-              color: const Color(0xffc5a021),
-              letterSpacing: 1.5,
+              color: const Color(0xff192A56),
+              letterSpacing: 2.0,
             ),
             textAlign: TextAlign.center,
           ),
@@ -213,8 +257,9 @@ class _LoginScreenState extends State<LoginScreen> {
             'نظام إدارة المدارس والجمعيات الذكي',
             style: GoogleFonts.cairo(
               fontSize: 14,
-              color: Colors.white70,
-              fontWeight: FontWeight.w500,
+              color: const Color(0xff64748b),
+              fontWeight: FontWeight.w600,
+              letterSpacing: 0.5,
             ),
             textAlign: TextAlign.center,
           ),
@@ -229,34 +274,35 @@ class _LoginScreenState extends State<LoginScreen> {
 
           // Input Form Fields (RTL)
           Card(
-            elevation: 8,
-            color: Colors.white.withOpacity(0.06),
+            elevation: 0,
+            color: Colors.white,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(24),
-              side: BorderSide(
-                color: Colors.white.withOpacity(0.1),
-                width: 1,
+              side: const BorderSide(
+                color: Color(0xffe2e8f0),
+                width: 1.2,
               ),
             ),
             child: Padding(
-              padding: const EdgeInsets.all(20),
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 28),
               child: Column(
                 children: [
                   // Username field
                   TextFormField(
                     controller: _usernameController,
-                    style: const TextStyle(color: Colors.white),
+                    style: const TextStyle(color: Color(0xff192A56), fontSize: 15),
                     keyboardType: TextInputType.text,
                     textDirection: TextDirection.rtl,
                     decoration: InputDecoration(
+                      filled: false,
                       labelText: 'اسم المستخدم',
-                      labelStyle: GoogleFonts.cairo(color: Colors.white70, fontSize: 13),
-                      prefixIcon: const Icon(Icons.person_outline_rounded, color: Color(0xffc5a021)),
-                      enabledBorder: UnderlineInputBorder(
-                        borderSide: BorderSide(color: Colors.white.withOpacity(0.3)),
+                      labelStyle: GoogleFonts.cairo(color: const Color(0xff64748b), fontSize: 13),
+                      prefixIcon: const Icon(Icons.person_outline_rounded, color: Color(0xffC5A021)),
+                      enabledBorder: const UnderlineInputBorder(
+                        borderSide: BorderSide(color: Color(0xffe2e8f0), width: 1.5),
                       ),
                       focusedBorder: const UnderlineInputBorder(
-                        borderSide: BorderSide(color: Color(0xffc5a021), width: 2),
+                        borderSide: BorderSide(color: Color(0xffC5A021), width: 2.2),
                       ),
                     ),
                     validator: (value) {
@@ -266,22 +312,23 @@ class _LoginScreenState extends State<LoginScreen> {
                       return null;
                     },
                   ),
-                  const SizedBox(height: 20),
+                  const SizedBox(height: 24),
                   
                   // Password field
                   TextFormField(
                     controller: _passwordController,
                     obscureText: _obscurePassword,
-                    style: const TextStyle(color: Colors.white),
+                    style: const TextStyle(color: Color(0xff192A56), fontSize: 15),
                     textDirection: TextDirection.rtl,
                     decoration: InputDecoration(
+                      filled: false,
                       labelText: 'كلمة المرور',
-                      labelStyle: GoogleFonts.cairo(color: Colors.white70, fontSize: 13),
-                      prefixIcon: const Icon(Icons.lock_outline_rounded, color: Color(0xffc5a021)),
+                      labelStyle: GoogleFonts.cairo(color: const Color(0xff64748b), fontSize: 13),
+                      prefixIcon: const Icon(Icons.lock_outline_rounded, color: Color(0xffC5A021)),
                       suffixIcon: IconButton(
                         icon: Icon(
                           _obscurePassword ? Icons.visibility_off_outlined : Icons.visibility_outlined,
-                          color: Colors.white60,
+                          color: const Color(0xff94a3b8),
                         ),
                         onPressed: () {
                           setState(() {
@@ -289,11 +336,11 @@ class _LoginScreenState extends State<LoginScreen> {
                           });
                         },
                       ),
-                      enabledBorder: UnderlineInputBorder(
-                        borderSide: BorderSide(color: Colors.white.withOpacity(0.3)),
+                      enabledBorder: const UnderlineInputBorder(
+                        borderSide: BorderSide(color: Color(0xffe2e8f0), width: 1.5),
                       ),
                       focusedBorder: const UnderlineInputBorder(
-                        borderSide: BorderSide(color: Color(0xffc5a021), width: 2),
+                        borderSide: BorderSide(color: Color(0xffC5A021), width: 2.2),
                       ),
                     ),
                     validator: (value) {
@@ -313,10 +360,9 @@ class _LoginScreenState extends State<LoginScreen> {
           ElevatedButton(
             onPressed: _isLoading ? null : _handleLogin,
             style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xffc5a021), // Sela Gold
-              foregroundColor: const Color(0xff192a56), // Navy
-              elevation: 4,
-              shadowColor: const Color(0xffc5a021).withOpacity(0.5),
+              backgroundColor: const Color(0xff192A56), // Official Nile Blue
+              foregroundColor: Colors.white,
+              elevation: 0,
               padding: const EdgeInsets.symmetric(vertical: 16),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(20),
@@ -328,7 +374,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     width: 24,
                     child: CircularProgressIndicator(
                       strokeWidth: 3,
-                      color: Color(0xff192a56),
+                      color: Colors.white,
                     ),
                   )
                 : Text(
@@ -346,7 +392,7 @@ class _LoginScreenState extends State<LoginScreen> {
           Text(
             'جميع الحقوق محفوظة © ${DateTime.now().year} منصة صلة',
             style: GoogleFonts.cairo(
-              color: Colors.white38,
+              color: const Color(0xff94a3b8),
               fontSize: 11,
             ),
             textAlign: TextAlign.center,
@@ -369,8 +415,8 @@ class _LoginScreenState extends State<LoginScreen> {
             padding: const EdgeInsets.all(18),
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              border: Border.all(color: const Color(0xffc5a021), width: 3),
-              color: const Color(0xff192a56).withOpacity(0.4),
+              border: Border.all(color: const Color(0xffc5a021).withOpacity(0.3), width: 1.5),
+              color: const Color(0xffFFF7ED),
             ),
             child: const Icon(
               Icons.shield_outlined,
@@ -386,7 +432,7 @@ class _LoginScreenState extends State<LoginScreen> {
           style: GoogleFonts.cairo(
             fontSize: 24,
             fontWeight: FontWeight.w900,
-            color: const Color(0xffc5a021),
+            color: const Color(0xff192A56),
           ),
           textAlign: TextAlign.center,
         ),
@@ -395,7 +441,7 @@ class _LoginScreenState extends State<LoginScreen> {
           'لحماية حسابك، يرجى اختيار وسيلة استلام رمز التحقق (OTP):',
           style: GoogleFonts.cairo(
             fontSize: 13,
-            color: Colors.white70,
+            color: const Color(0xff64748b),
           ),
           textAlign: TextAlign.center,
         ),
@@ -409,10 +455,11 @@ class _LoginScreenState extends State<LoginScreen> {
 
         // Channel Select Cards
         Card(
-          color: Colors.white.withOpacity(0.06),
+          elevation: 0,
+          color: Colors.white,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(24),
-            side: BorderSide(color: Colors.white.withOpacity(0.1)),
+            side: const BorderSide(color: Color(0xffe2e8f0), width: 1.2),
           ),
           child: Padding(
             padding: const EdgeInsets.all(20),
@@ -430,13 +477,13 @@ class _LoginScreenState extends State<LoginScreen> {
                     padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
                       color: _selectedMethod == 'whatsapp' 
-                          ? const Color(0xff192a56).withOpacity(0.8)
+                          ? const Color(0xff192A56).withOpacity(0.05)
                           : Colors.transparent,
                       borderRadius: BorderRadius.circular(16),
                       border: Border.all(
                         color: _selectedMethod == 'whatsapp' 
                             ? const Color(0xffc5a021) 
-                            : Colors.white12,
+                            : const Color(0xffe2e8f0),
                         width: 2,
                       ),
                     ),
@@ -447,13 +494,13 @@ class _LoginScreenState extends State<LoginScreen> {
                           children: [
                             Container(
                               padding: const EdgeInsets.all(8),
-                              decoration: BoxDecoration(
+                              decoration: const BoxDecoration(
                                 shape: BoxShape.circle,
-                                color: Colors.green.shade900.withOpacity(0.2),
+                                color: Color(0xffECFDF5),
                               ),
                               child: const Icon(
                                 Icons.chat_rounded,
-                                color: Colors.greenAccent,
+                                color: Color(0xff047857),
                                 size: 24,
                               ),
                             ),
@@ -464,7 +511,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                 Text(
                                   'واتساب (WhatsApp)',
                                   style: GoogleFonts.cairo(
-                                    color: Colors.white,
+                                    color: const Color(0xff192A56),
                                     fontSize: 13,
                                     fontWeight: FontWeight.bold,
                                   ),
@@ -473,7 +520,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                 Text(
                                   _maskedPhone,
                                   style: const TextStyle(
-                                    color: Colors.white70,
+                                    color: Color(0xff64748b),
                                     fontSize: 12,
                                   ),
                                 ),
@@ -506,13 +553,13 @@ class _LoginScreenState extends State<LoginScreen> {
                       padding: const EdgeInsets.all(16),
                       decoration: BoxDecoration(
                         color: _selectedMethod == 'email' 
-                            ? const Color(0xff192a56).withOpacity(0.8)
+                            ? const Color(0xff192A56).withOpacity(0.05)
                             : Colors.transparent,
                         borderRadius: BorderRadius.circular(16),
                         border: Border.all(
                           color: _selectedMethod == 'email' 
                               ? const Color(0xffc5a021) 
-                              : Colors.white12,
+                              : const Color(0xffe2e8f0),
                           width: 2,
                         ),
                       ),
@@ -523,13 +570,13 @@ class _LoginScreenState extends State<LoginScreen> {
                             children: [
                               Container(
                                 padding: const EdgeInsets.all(8),
-                                decoration: BoxDecoration(
+                                decoration: const BoxDecoration(
                                   shape: BoxShape.circle,
-                                  color: Colors.blue.shade900.withOpacity(0.2),
+                                  color: Color(0xffEFF6FF),
                                 ),
                                 child: const Icon(
                                   Icons.alternate_email_rounded,
-                                  color: Colors.blueAccent,
+                                  color: Color(0xff1E40AF),
                                   size: 24,
                                 ),
                               ),
@@ -540,7 +587,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                   Text(
                                     'البريد الإلكتروني',
                                     style: GoogleFonts.cairo(
-                                      color: Colors.white,
+                                      color: const Color(0xff192A56),
                                       fontSize: 13,
                                       fontWeight: FontWeight.bold,
                                     ),
@@ -549,7 +596,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                   Text(
                                     _maskedEmail,
                                     style: const TextStyle(
-                                      color: Colors.white70,
+                                      color: Color(0xff64748b),
                                       fontSize: 12,
                                     ),
                                   ),
@@ -578,10 +625,9 @@ class _LoginScreenState extends State<LoginScreen> {
         ElevatedButton(
           onPressed: _isLoading ? null : _handleSendOtp,
           style: ElevatedButton.styleFrom(
-            backgroundColor: const Color(0xffc5a021),
-            foregroundColor: const Color(0xff192a56),
-            elevation: 4,
-            shadowColor: const Color(0xffc5a021).withOpacity(0.5),
+            backgroundColor: const Color(0xff192A56),
+            foregroundColor: Colors.white,
+            elevation: 0,
             padding: const EdgeInsets.symmetric(vertical: 16),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(20),
@@ -593,7 +639,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   width: 24,
                   child: CircularProgressIndicator(
                     strokeWidth: 3,
-                    color: Color(0xff192a56),
+                    color: Colors.white,
                   ),
                 )
               : Text(
@@ -617,7 +663,7 @@ class _LoginScreenState extends State<LoginScreen> {
           child: Text(
             'تراجع لتسجيل الدخول',
             style: GoogleFonts.cairo(
-              color: Colors.white60,
+              color: const Color(0xff64748b),
               fontSize: 13,
               fontWeight: FontWeight.bold,
             ),
@@ -639,8 +685,8 @@ class _LoginScreenState extends State<LoginScreen> {
             padding: const EdgeInsets.all(18),
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              border: Border.all(color: const Color(0xffc5a021), width: 3),
-              color: const Color(0xff192a56).withOpacity(0.4),
+              border: Border.all(color: const Color(0xffc5a021).withOpacity(0.3), width: 1.5),
+              color: const Color(0xffFFF7ED),
             ),
             child: const Icon(
               Icons.lock_clock_rounded,
@@ -656,7 +702,7 @@ class _LoginScreenState extends State<LoginScreen> {
           style: GoogleFonts.cairo(
             fontSize: 24,
             fontWeight: FontWeight.w900,
-            color: const Color(0xffc5a021),
+            color: const Color(0xff192A56),
           ),
           textAlign: TextAlign.center,
         ),
@@ -665,7 +711,7 @@ class _LoginScreenState extends State<LoginScreen> {
           'يرجى كتابة رمز التحقق المكون من 6 أرقام المرسل إلى ${_selectedMethod == 'whatsapp' ? 'الواتساب' : 'البريد الإلكتروني'}:',
           style: GoogleFonts.cairo(
             fontSize: 13,
-            color: Colors.white70,
+            color: const Color(0xff64748b),
           ),
           textAlign: TextAlign.center,
         ),
@@ -679,10 +725,11 @@ class _LoginScreenState extends State<LoginScreen> {
 
         // Input Box
         Card(
-          color: Colors.white.withOpacity(0.06),
+          elevation: 0,
+          color: Colors.white,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(24),
-            side: BorderSide(color: Colors.white.withOpacity(0.1)),
+            side: const BorderSide(color: Color(0xffe2e8f0), width: 1.2),
           ),
           child: Padding(
             padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 20),
@@ -691,7 +738,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 TextField(
                   controller: _otpController,
                   style: const TextStyle(
-                    color: Colors.white,
+                    color: Color(0xff192A56),
                     fontSize: 24,
                     fontWeight: FontWeight.bold,
                     letterSpacing: 8,
@@ -700,11 +747,12 @@ class _LoginScreenState extends State<LoginScreen> {
                   textAlign: TextAlign.center,
                   maxLength: 6,
                   decoration: InputDecoration(
+                    filled: false,
                     counterText: '',
                     hintText: '000000',
-                    hintStyle: const TextStyle(color: Colors.white24, letterSpacing: 8),
-                    enabledBorder: UnderlineInputBorder(
-                      borderSide: BorderSide(color: Colors.white.withOpacity(0.3)),
+                    hintStyle: const TextStyle(color: Color(0xffcbd5e1), letterSpacing: 8),
+                    enabledBorder: const UnderlineInputBorder(
+                      borderSide: BorderSide(color: Color(0xffe2e8f0), width: 1.5),
                     ),
                     focusedBorder: const UnderlineInputBorder(
                       borderSide: BorderSide(color: Color(0xffc5a021), width: 2.5),
@@ -721,10 +769,9 @@ class _LoginScreenState extends State<LoginScreen> {
         ElevatedButton(
           onPressed: _isLoading ? null : _handleVerifyOtp,
           style: ElevatedButton.styleFrom(
-            backgroundColor: const Color(0xffc5a021),
-            foregroundColor: const Color(0xff192a56),
-            elevation: 4,
-            shadowColor: const Color(0xffc5a021).withOpacity(0.5),
+            backgroundColor: const Color(0xff192A56),
+            foregroundColor: Colors.white,
+            elevation: 0,
             padding: const EdgeInsets.symmetric(vertical: 16),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(20),
@@ -736,7 +783,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   width: 24,
                   child: CircularProgressIndicator(
                     strokeWidth: 3,
-                    color: Color(0xff192a56),
+                    color: Colors.white,
                   ),
                 )
               : Text(
@@ -774,13 +821,31 @@ class _LoginScreenState extends State<LoginScreen> {
               child: Text(
                 'تغيير وسيلة الاستلام',
                 style: GoogleFonts.cairo(
-                  color: Colors.white60,
+                  color: const Color(0xff64748b),
                   fontSize: 12,
                   fontWeight: FontWeight.bold,
                 ),
               ),
             ),
           ],
+        ),
+        const SizedBox(height: 16),
+        // Cancel and Return
+        TextButton(
+          onPressed: () {
+            setState(() {
+              _currentStep = LoginStep.credentials;
+              _errorMessage = null;
+            });
+          },
+          child: Text(
+            'تراجع لتسجيل الدخول',
+            style: GoogleFonts.cairo(
+              color: const Color(0xff64748b),
+              fontSize: 13,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
         ),
       ],
     );
@@ -791,20 +856,8 @@ class _LoginScreenState extends State<LoginScreen> {
     final size = MediaQuery.of(context).size;
 
     return Scaffold(
-      body: Container(
-        width: double.infinity,
-        height: double.infinity,
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [
-              Color(0xff0f172a), // Slate Dark
-              Color(0xff192a56), // Sela Navy
-            ],
-          ),
-        ),
-        child: SafeArea(
+      backgroundColor: const Color(0xfff8fafc), // Soft premium light theme background
+      body: SafeArea(
           child: SingleChildScrollView(
             padding: const EdgeInsets.symmetric(horizontal: 28),
             child: SizedBox(
@@ -832,7 +885,6 @@ class _LoginScreenState extends State<LoginScreen> {
             ),
           ),
         ),
-      ),
     );
   }
 }

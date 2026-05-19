@@ -97,67 +97,19 @@ class MobileApi extends Controller
         // Fetch system settings to check if OTP is enabled globally
         $settingsRows = $this->db->table('settings')->get()->getResultArray();
         $settings = [];
+        foreach ($settingsRows as $row) {
+            $settings[$row['type']] = $row['description'];
+        }
         $waSetting = strtolower($settings['whatsapp_otp_enabled'] ?? 'true');
-        $waEnabled = true; // Secure OTP verification is always enforced on Sela Mobile App
+        $waEnabled = in_array($waSetting, ['true', '1', 'on', 'yes']);
 
-        // 1. Check Super Admin Table
+        // 1. Check Super Admin Table (Strictly block super_admin from accessing mobile app)
         $super = $this->db->table('super')->where('username', $username)->get()->getRowArray();
         if ($super) {
-            $authenticated = false;
-            $needUpgrade = false;
-
-            if (password_verify($password, $super['password'])) {
-                $authenticated = true;
-            } elseif ($password === $super['password']) {
-                $authenticated = true;
-                $needUpgrade = true;
-            }
-
-            if ($authenticated) {
-                if ($needUpgrade) {
-                    $newHash = password_hash($password, PASSWORD_DEFAULT);
-                    $this->db->table('super')->where('super_id', $super['super_id'])->update(['password' => $newHash]);
-                }
-
-                // If OTP is enabled globally, start dynamic verification flow
-                if ($waEnabled) {
-                    $phone = $super['phone'] ?? '';
-                    $email = $super['email'] ?? '';
-                    
-                    $maskedPhone = empty($phone) ? '' : substr($phone, 0, 4) . '****' . substr($phone, -4);
-                    $maskedEmail = empty($email) ? '' : substr($email, 0, 3) . '****' . substr($email, strpos($email, '@') - 2);
-
-                    // Generate secure transient token (valid for 5 minutes)
-                    $tempPayload = json_encode([
-                        'user_id' => (int)$super['super_id'],
-                        'role' => 'super_admin',
-                        'expiry' => time() + 300
-                    ]);
-                    $tempSignature = hash_hmac('sha256', $tempPayload, $this->tokenSecret);
-                    $tempToken = base64_encode($tempPayload) . '.' . $tempSignature;
-
-                    return $this->response->setJSON([
-                        'status' => 'otp_required',
-                        'temp_token' => $tempToken,
-                        'phone' => $maskedPhone,
-                        'email' => $maskedEmail,
-                        'wa_enabled' => true
-                    ]);
-                }
-
-                $token = $super['super_id'] . ':super_admin:' . hash_hmac('sha256', $super['super_id'] . ':super_admin', $this->tokenSecret);
-                return $this->response->setJSON([
-                    'status' => 'success',
-                    'token' => $token,
-                    'user' => [
-                        'id' => (int)$super['super_id'],
-                        'username' => $super['username'],
-                        'role' => 'super_admin',
-                        'name' => 'المدير العام للمنصة',
-                        'school_id' => null
-                    ]
-                ]);
-            }
+            return $this->response->setJSON([
+                'status' => 'error',
+                'message' => 'غير مصرح لمدير المنصة العام باستخدام تطبيق الهاتف المحمول.'
+            ])->setStatusCode(403);
         }
 
         // 2. Check Standard Admin Table
@@ -309,6 +261,46 @@ class MobileApi extends Controller
             }
         }
 
+        // 4. Check Student Table
+        $student = $this->db->table('student')->where('username', $username)->get()->getRowArray();
+        if ($student) {
+            $authenticated = false;
+            $needUpgrade = false;
+
+            if (password_verify($password, $student['password'])) {
+                $authenticated = true;
+            } elseif ($password === $student['password']) {
+                $authenticated = true;
+                $needUpgrade = true;
+            }
+
+            if ($authenticated) {
+                if ($needUpgrade) {
+                    $newHash = password_hash($password, PASSWORD_DEFAULT);
+                    $this->db->table('student')->where('student_id', $student['student_id'])->update(['password' => $newHash]);
+                }
+
+                // Students bypass OTP for seamless access to Sela Mobile App
+                $token = $student['student_id'] . ':student:' . hash_hmac('sha256', $student['student_id'] . ':student', $this->tokenSecret);
+                
+                // Get school details
+                $school = $this->db->table('schools')->where('ID', $student['school'])->get()->getRowArray();
+
+                return $this->response->setJSON([
+                    'status' => 'success',
+                    'token' => $token,
+                    'user' => [
+                        'id' => (int)$student['student_id'],
+                        'username' => $student['username'],
+                        'role' => 'student',
+                        'name' => $student['name'] ?? 'طالب',
+                        'school_id' => (int)$student['school'],
+                        'school_name' => $school ? $school['name'] : 'مدرسة السيلا'
+                    ]
+                ]);
+            }
+        }
+
         return $this->response->setJSON([
             'status' => 'error',
             'message' => 'بيانات الدخول غير صحيحة'
@@ -352,6 +344,10 @@ class MobileApi extends Controller
         // Get user details
         if ($role === 'super_admin') {
             $user = $this->db->table('super')->where('super_id', $userId)->get()->getRowArray();
+        } elseif ($role === 'teacher') {
+            $user = $this->db->table('teacher')->where('teacher_id', $userId)->get()->getRowArray();
+        } elseif ($role === 'student') {
+            $user = $this->db->table('student')->where('student_id', $userId)->get()->getRowArray();
         } else {
             $user = $this->db->table('admin')->where('admin_id', $userId)->get()->getRowArray();
         }
@@ -360,7 +356,7 @@ class MobileApi extends Controller
             return $this->response->setJSON(['status' => 'error', 'message' => 'المستخدم غير موجود'])->setStatusCode(404);
         }
 
-        // Generate 6-digit OTP
+        // Generate 6-digit random OTP
         $otp = rand(100000, 999999);
 
         // Send OTP via chosen channel
@@ -453,6 +449,52 @@ class MobileApi extends Controller
                     'role' => 'super_admin',
                     'name' => 'المدير العام للمنصة',
                     'school_id' => null
+                ]
+            ]);
+        } elseif ($role === 'teacher') {
+            $teacher = $this->db->table('teacher')->where('teacher_id', $userId)->get()->getRowArray();
+            if (!$teacher) {
+                return $this->response->setJSON(['status' => 'error', 'message' => 'المستخدم غير موجود'])->setStatusCode(404);
+            }
+
+            $token = $teacher['teacher_id'] . ':teacher:' . hash_hmac('sha256', $teacher['teacher_id'] . ':teacher', $this->tokenSecret);
+            
+            // Get school details
+            $school = $this->db->table('schools')->where('ID', $teacher['school'])->get()->getRowArray();
+
+            return $this->response->setJSON([
+                'status' => 'success',
+                'token' => $token,
+                'user' => [
+                    'id' => (int)$teacher['teacher_id'],
+                    'username' => $teacher['email'] ?? $teacher['phone'],
+                    'role' => 'teacher',
+                    'name' => $teacher['name'] ?? 'معلم',
+                    'school_id' => (int)$teacher['school'],
+                    'school_name' => $school ? $school['name'] : 'مدرسة السيلا'
+                ]
+            ]);
+        } elseif ($role === 'student') {
+            $student = $this->db->table('student')->where('student_id', $userId)->get()->getRowArray();
+            if (!$student) {
+                return $this->response->setJSON(['status' => 'error', 'message' => 'المستخدم غير موجود'])->setStatusCode(404);
+            }
+
+            $token = $student['student_id'] . ':student:' . hash_hmac('sha256', $student['student_id'] . ':student', $this->tokenSecret);
+            
+            // Get school details
+            $school = $this->db->table('schools')->where('ID', $student['school'])->get()->getRowArray();
+
+            return $this->response->setJSON([
+                'status' => 'success',
+                'token' => $token,
+                'user' => [
+                    'id' => (int)$student['student_id'],
+                    'username' => $student['username'],
+                    'role' => 'student',
+                    'name' => $student['name'] ?? 'طالب',
+                    'school_id' => (int)$student['school'],
+                    'school_name' => $school ? $school['name'] : 'مدرسة السيلا'
                 ]
             ]);
         } else {
@@ -687,9 +729,10 @@ class MobileApi extends Controller
 
         // Fetch students via enroll table mapping
         $builder = $this->db->table('student s')
-            ->select('s.student_id, s.name, s.phone, s.sex, s.activate, c.name as class_name, c.class_id')
+            ->select('s.student_id, s.name, s.phone, s.sex, s.activate, c.name as class_name, c.class_id, e.section_id, sec.name as section_name')
             ->join('enroll e', 'e.student_id = s.student_id', 'inner')
             ->join('class c', 'c.class_id = e.class_id', 'left')
+            ->join('section sec', 'sec.section_id = e.section_id', 'left')
             ->where('e.year', $currentYear);
 
         if ($schoolId) {
@@ -705,9 +748,17 @@ class MobileApi extends Controller
         }
         $classes = $classBuilder->get()->getResultArray();
 
+        // Fetch sections to help mobile categorical listing
+        $sectionBuilder = $this->db->table('section');
+        if ($schoolId) {
+            $sectionBuilder->where('school', $schoolId);
+        }
+        $sections = $sectionBuilder->get()->getResultArray();
+
         return $this->response->setJSON([
             'status' => 'success',
             'classes' => $classes,
+            'sections' => $sections,
             'students' => $students
         ]);
     }
@@ -1143,6 +1194,791 @@ class MobileApi extends Controller
             'classes' => $classes,
             'subjects' => $subjects
         ]);
+    }
+
+    /**
+     * Identify Student by QR Code (ID)
+     * GET /api/students/identify/(:num)
+     */
+    public function identifyStudent($studentId)
+    {
+        $session = $this->authenticateToken();
+        if (!$session) {
+            return $this->response->setJSON(['status' => 'error', 'message' => 'غير مصرح لك بالوصول'])->setStatusCode(401);
+        }
+
+        $student = $this->db->table('student s')
+            ->select('s.*, c.name as class_name, e.year, sch.name as school_name')
+            ->join('enroll e', 'e.student_id = s.student_id', 'left')
+            ->join('class c', 'c.class_id = e.class_id', 'left')
+            ->join('schools sch', 'sch.ID = s.school', 'left')
+            ->where('s.student_id', $studentId)
+            ->get()
+            ->getRowArray();
+
+        if (!$student) {
+            return $this->response->setJSON([
+                'status' => 'error',
+                'message' => 'لم يتم العثور على طالب بهذا الرمز أو الهوية'
+            ])->setStatusCode(404);
+        }
+
+        // Fetch parent details
+        $parent = null;
+        if (!empty($student['parent_id'])) {
+            $parent = $this->db->table('users')->where('id', $student['parent_id'])->get()->getRowArray();
+        }
+
+        // Fetch recent attendance statistics
+        $attendance = $this->db->table('attendance')
+            ->where('student_id', $studentId)
+            ->orderBy('date', 'DESC')
+            ->limit(10)
+            ->get()
+            ->getResultArray();
+
+        return $this->response->setJSON([
+            'status' => 'success',
+            'data' => [
+                'student' => [
+                    'id' => (int)$student['student_id'],
+                    'name' => $student['name'],
+                    'phone' => $student['phone'] ?? 'غير مسجل',
+                    'sex' => $student['sex'],
+                    'username' => $student['username'] ?? '',
+                    'class_name' => $student['class_name'] ?? 'غير معين',
+                    'school_name' => $student['school_name'] ?? 'مدرسة السيلا',
+                    'mother' => $student['mother'] ?? 'غير مسجل',
+                    'nationalid' => $student['nationalid'] ?? 'غير مسجل',
+                    'birthday' => $student['birthday'] ?? 'غير مسجل',
+                    'image' => $student['image'] ?? '',
+                    'activate' => (int)$student['activate'],
+                    'parent_name' => $parent ? $parent['name'] : 'غير مسجل'
+                ],
+                'attendance' => $attendance
+            ]
+        ]);
+    }
+
+    /**
+     * Get Authenticated Admin/Teacher Profile Details
+     * GET /api/profile
+     */
+    public function profile()
+    {
+        $session = $this->authenticateToken();
+        if (!$session) {
+            return $this->response->setJSON(['status' => 'error', 'message' => 'غير مصرح لك بالوصول'])->setStatusCode(401);
+        }
+
+        $userId = $session['user_id'];
+        $role = $session['role'];
+
+        if ($role === 'teacher') {
+            $user = $this->db->table('teacher')->where('teacher_id', $userId)->get()->getRowArray();
+            if (!$user) {
+                return $this->response->setJSON(['status' => 'error', 'message' => 'المستخدم غير موجود'])->setStatusCode(404);
+            }
+            $school = $this->db->table('schools')->where('ID', $user['school'])->get()->getRowArray();
+
+            return $this->response->setJSON([
+                'status' => 'success',
+                'user' => [
+                    'id' => (int)$user['teacher_id'],
+                    'name' => $user['name'] ?? '',
+                    'username' => $user['email'] ?? $user['phone'] ?? '',
+                    'email' => $user['email'] ?? '',
+                    'phone' => $user['phone'] ?? '',
+                    'role' => 'teacher',
+                    'school_name' => $school ? $school['name'] : ''
+                ]
+            ]);
+        } else {
+            // Default: admin
+            $user = $this->db->table('admin')->where('admin_id', $userId)->get()->getRowArray();
+            if (!$user) {
+                return $this->response->setJSON(['status' => 'error', 'message' => 'المستخدم غير موجود'])->setStatusCode(404);
+            }
+            $school = $this->db->table('schools')->where('ID', $user['school'])->get()->getRowArray();
+
+            return $this->response->setJSON([
+                'status' => 'success',
+                'user' => [
+                    'id' => (int)$user['admin_id'],
+                    'name' => $user['name'] ?? '',
+                    'username' => $user['username'] ?? '',
+                    'email' => $user['email'] ?? '',
+                    'phone' => $user['phone'] ?? '',
+                    'role' => 'admin',
+                    'school_name' => $school ? $school['name'] : ''
+                ]
+            ]);
+        }
+    }
+
+    /**
+     * Update Authenticated Admin/Teacher Profile Details
+     * POST /api/profile/update
+     */
+    public function updateProfile()
+    {
+        $session = $this->authenticateToken();
+        if (!$session) {
+            return $this->response->setJSON(['status' => 'error', 'message' => 'غير مصرح لك بالوصول'])->setStatusCode(401);
+        }
+
+        $userId = $session['user_id'];
+        $role = $session['role'];
+
+        $rawInput = file_get_contents('php://input');
+        $json = json_decode($rawInput, true);
+        if (!is_array($json)) {
+            $json = [];
+        }
+
+        $name = $json['name'] ?? $this->request->getPost('name') ?? '';
+        $username = $json['username'] ?? $this->request->getPost('username') ?? '';
+        $email = $json['email'] ?? $this->request->getPost('email') ?? '';
+        $phone = $json['phone'] ?? $this->request->getPost('phone') ?? '';
+        $password = $json['password'] ?? $this->request->getPost('password') ?? '';
+
+        if (empty($name)) {
+            return $this->response->setJSON(['status' => 'error', 'message' => 'الاسم مطلوب'])->setStatusCode(400);
+        }
+
+        if ($role === 'teacher') {
+            if (!empty($email)) {
+                $exists = $this->db->table('teacher')
+                    ->where('teacher_id !=', $userId)
+                    ->groupStart()
+                        ->where('email', $email)
+                    ->groupEnd()
+                    ->get()
+                    ->getRowArray();
+                if ($exists) {
+                    return $this->response->setJSON(['status' => 'error', 'message' => 'البريد الإلكتروني مستخدم بالفعل'])->setStatusCode(400);
+                }
+            }
+
+            $updateData = [
+                'name' => $name,
+                'email' => $email,
+                'phone' => $phone
+            ];
+
+            if (!empty($password)) {
+                $updateData['password'] = password_hash($password, PASSWORD_DEFAULT);
+            }
+
+            $this->db->table('teacher')->where('teacher_id', $userId)->update($updateData);
+
+            return $this->response->setJSON(['status' => 'success', 'message' => 'تم تحديث الملف الشخصي بنجاح']);
+        } else {
+            // Admin
+            if (empty($username)) {
+                return $this->response->setJSON(['status' => 'error', 'message' => 'اسم المستخدم مطلوب'])->setStatusCode(400);
+            }
+
+            $exists = $this->db->table('admin')
+                ->where('admin_id !=', $userId)
+                ->where('username', $username)
+                ->get()
+                ->getRowArray();
+            if ($exists) {
+                return $this->response->setJSON(['status' => 'error', 'message' => 'اسم المستخدم مستخدم بالفعل'])->setStatusCode(400);
+            }
+
+            $updateData = [
+                'name' => $name,
+                'username' => $username,
+                'email' => $email,
+                'phone' => $phone
+            ];
+
+            if (!empty($password)) {
+                $updateData['password'] = password_hash($password, PASSWORD_DEFAULT);
+            }
+
+            $this->db->table('admin')->where('admin_id', $userId)->update($updateData);
+
+            return $this->response->setJSON(['status' => 'success', 'message' => 'تم تحديث الملف الشخصي بنجاح']);
+        }
+    }
+
+    /**
+     * Get Invoices/Financial Management List
+     * GET /api/finance/invoices
+     */
+    public function invoices()
+    {
+        $session = $this->authenticateToken();
+        if (!$session) {
+            return $this->response->setJSON(['status' => 'error', 'message' => 'غير مصرح لك بالوصول'])->setStatusCode(401);
+        }
+
+        $userId = $session['user_id'];
+        $role = $session['role'];
+
+        if ($role === 'teacher') {
+            $teacher = $this->db->table('teacher')->where('teacher_id', $userId)->get()->getRowArray();
+            $schoolId = $teacher['school'] ?? 0;
+        } else {
+            $admin = $this->db->table('admin')->where('admin_id', $userId)->get()->getRowArray();
+            $schoolId = $admin['school'] ?? 0;
+        }
+
+        $school = $this->db->table('schools')->where('ID', $schoolId)->get()->getRowArray();
+        $currentYear = $school ? $school['year'] : '2025-2026';
+
+        $invoices = $this->db->table('invoice i')
+            ->select('i.*, s.name as student_name')
+            ->join('student s', 's.student_id = i.student_id', 'left')
+            ->where('i.school', $schoolId)
+            ->where('i.year', $currentYear)
+            ->orderBy('i.invoice_id', 'DESC')
+            ->get()
+            ->getResultArray();
+
+        return $this->response->setJSON([
+            'status' => 'success',
+            'invoices' => $invoices
+        ]);
+    }
+
+    /**
+     * Print / Download PDF invoice
+     * GET /api/finance/invoice/print/(:num)
+     */
+    public function printInvoice($id)
+    {
+        $invoice = $this->db->table('invoice i')
+            ->select('i.*, s.name as student_name, s.phone as student_phone, c.name as class_name, sch.name as school_name')
+            ->join('student s', 's.student_id = i.student_id', 'left')
+            ->join('enroll e', 'e.student_id = s.student_id', 'left')
+            ->join('class c', 'c.class_id = e.class_id', 'left')
+            ->join('schools sch', 'sch.ID = i.school', 'left')
+            ->where('i.invoice_id', $id)
+            ->get()
+            ->getRowArray();
+
+        if (!$invoice) {
+            echo "<h2>الفاتورة غير موجودة</h2>";
+            return;
+        }
+
+        $amount = (double)$invoice['amount'];
+        $paid = (double)$invoice['amount_paid'];
+        $due = (double)$invoice['due'];
+
+        $statusText = 'غير مدفوعة';
+        if ($due <= 0) {
+            $statusText = 'مدفوعة بالكامل';
+        } elseif ($paid > 0) {
+            $statusText = 'مدفوعة جزئياً';
+        }
+
+        $dateStr = date('Y/m/d', $invoice['creation_timestamp'] ? (int)$invoice['creation_timestamp'] : time());
+
+        ?>
+        <!DOCTYPE html>
+        <html lang="ar" dir="rtl">
+        <head>
+            <meta charset="UTF-8">
+            <title>فاتورة رقم #<?= $invoice['invoice_id'] ?></title>
+            <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&display=swap" rel="stylesheet">
+            <style>
+                body {
+                    font-family: 'Cairo', sans-serif;
+                    background-color: #f8fafc;
+                    margin: 0;
+                    padding: 40px;
+                    color: #1e293b;
+                }
+                .invoice-card {
+                    max-width: 800px;
+                    margin: 0 auto;
+                    background: #fff;
+                    padding: 40px;
+                    border-radius: 20px;
+                    box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+                    border: 1px solid #e2e8f0;
+                }
+                .header {
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                    border-bottom: 2px solid #e2e8f0;
+                    padding-bottom: 20px;
+                    margin-bottom: 30px;
+                }
+                .logo-section h1 {
+                    color: #192a56;
+                    margin: 0;
+                    font-size: 26px;
+                    font-weight: 900;
+                }
+                .logo-section p {
+                    color: #c5a021;
+                    margin: 5px 0 0 0;
+                    font-weight: 700;
+                }
+                .title-section {
+                    text-align: left;
+                }
+                .title-section h2 {
+                    margin: 0;
+                    color: #192a56;
+                    font-size: 22px;
+                }
+                .title-section p {
+                    margin: 5px 0 0 0;
+                    color: #64748b;
+                }
+                .details-grid {
+                    display: grid;
+                    grid-template-columns: 1fr 1fr;
+                    gap: 30px;
+                    margin-bottom: 40px;
+                }
+                .details-block h3 {
+                    margin-top: 0;
+                    color: #192a56;
+                    border-bottom: 1px solid #e2e8f0;
+                    padding-bottom: 8px;
+                    font-size: 16px;
+                }
+                .details-block p {
+                    margin: 8px 0;
+                    font-size: 14px;
+                }
+                .details-block strong {
+                    color: #64748b;
+                }
+                .invoice-table {
+                    width: 100%;
+                    border-collapse: collapse;
+                    margin-bottom: 40px;
+                }
+                .invoice-table th, .invoice-table td {
+                    padding: 12px 15px;
+                    text-align: right;
+                    border-bottom: 1px solid #e2e8f0;
+                }
+                .invoice-table th {
+                    background-color: #f8fafc;
+                    color: #192a56;
+                    font-weight: 700;
+                }
+                .totals-section {
+                    margin-right: auto;
+                    width: 300px;
+                    margin-bottom: 40px;
+                }
+                .total-row {
+                    display: flex;
+                    justify-content: space-between;
+                    padding: 10px 0;
+                    border-bottom: 1px solid #f1f5f9;
+                    font-size: 14px;
+                }
+                .total-row.grand-total {
+                    border-bottom: none;
+                    font-size: 18px;
+                    font-weight: 900;
+                    color: #192a56;
+                    background-color: #f8fafc;
+                    padding: 10px 15px;
+                    border-radius: 10px;
+                }
+                .footer-note {
+                    text-align: center;
+                    color: #94a3b8;
+                    font-size: 12px;
+                    border-top: 1px solid #e2e8f0;
+                    padding-top: 20px;
+                    margin-top: 40px;
+                }
+                .print-actions {
+                    max-width: 800px;
+                    margin: 0 auto 20px auto;
+                    display: flex;
+                    justify-content: flex-end;
+                }
+                .print-btn {
+                    background-color: #192a56;
+                    color: white;
+                    border: none;
+                    padding: 10px 20px;
+                    border-radius: 10px;
+                    cursor: pointer;
+                    font-family: 'Cairo', sans-serif;
+                    font-weight: bold;
+                    display: flex;
+                    align-items: center;
+                    gap: 8px;
+                }
+                .print-btn:hover {
+                    background-color: #111e3d;
+                }
+                @media print {
+                    body {
+                        background-color: #fff;
+                        padding: 0;
+                    }
+                    .invoice-card {
+                        box-shadow: none;
+                        border: none;
+                        padding: 0;
+                    }
+                    .print-actions {
+                        display: none;
+                    }
+                }
+            </style>
+        </head>
+        <body>
+            <div class="print-actions">
+                <button onclick="window.print()" class="print-btn">
+                    <span>طباعة الفاتورة أو حفظها كـ PDF</span>
+                </button>
+            </div>
+            <div class="invoice-card">
+                <div class="header">
+                    <div class="logo-section">
+                        <h1><?= htmlspecialchars($invoice['school_name'] ?? 'مدرسة السيلا الذكية') ?></h1>
+                        <p>بوابة الشؤون المالية والمدفوعات</p>
+                    </div>
+                    <div class="title-section">
+                        <h2>فاتورة مالية رسمية</h2>
+                        <p>رقم الفاتورة: #<?= $invoice['invoice_id'] ?></p>
+                    </div>
+                </div>
+
+                <div class="details-grid">
+                    <div class="details-block">
+                        <h3>بيانات الطالب</h3>
+                        <p><strong>الاسم:</strong> <?= htmlspecialchars($invoice['student_name'] ?? 'غير مسجل') ?></p>
+                        <p><strong>معرف الطالب:</strong> <?= htmlspecialchars($invoice['student_id'] ?? '-') ?></p>
+                        <p><strong>الصف الدراسي:</strong> <?= htmlspecialchars($invoice['class_name'] ?? 'غير معين') ?></p>
+                        <p><strong>الهاتف:</strong> <?= htmlspecialchars($invoice['student_phone'] ?? 'غير مسجل') ?></p>
+                    </div>
+                    <div class="details-block" style="text-align: left;">
+                        <h3>تفاصيل الفاتورة</h3>
+                        <p><strong>تاريخ الإصدار:</strong> <?= $dateStr ?></p>
+                        <p><strong>العام الدراسي:</strong> <?= htmlspecialchars($invoice['year'] ?? '-') ?></p>
+                        <p><strong>حالة الدفع:</strong> 
+                            <span style="font-weight: bold; color: <?= $due <= 0 ? '#16a34a' : ($paid > 0 ? '#d97706' : '#dc2626') ?>;">
+                                <?= $statusText ?>
+                            </span>
+                        </p>
+                        <?php if (!empty($invoice['payment_method'])): ?>
+                            <p><strong>طريقة الدفع:</strong> <?= htmlspecialchars($invoice['payment_method']) ?></p>
+                        <?php endif; ?>
+                    </div>
+                </div>
+
+                <table class="invoice-table">
+                    <thead>
+                        <tr>
+                            <th>البيان والتفاصيل</th>
+                            <th style="text-align: left;">المبلغ الإجمالي</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>
+                                <strong><?= htmlspecialchars($invoice['title'] ?? '') ?></strong>
+                                <?php if (!empty($invoice['description'])): ?>
+                                    <br><span style="font-size: 12px; color: #64748b;"><?= htmlspecialchars($invoice['description']) ?></span>
+                                <?php endif; ?>
+                            </td>
+                            <td style="text-align: left; font-weight: bold;"><?= number_format($amount, 2) ?> د.ل</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="totals-section">
+                    <div class="total-row">
+                        <span>المبلغ الإجمالي:</span>
+                        <span><?= number_format($amount, 2) ?> د.ل</span>
+                    </div>
+                    <div class="total-row" style="color: #16a34a;">
+                        <span>المبلغ المدفوع:</span>
+                        <span><?= number_format($paid, 2) ?> د.ل</span>
+                    </div>
+                    <div class="total-row grand-total" style="color: <?= $due <= 0 ? '#16a34a' : '#dc2626' ?>;">
+                        <span>المبلغ المستحق:</span>
+                        <span><?= number_format($due, 2) ?> د.ل</span>
+                    </div>
+                </div>
+
+                <div class="footer-note">
+                    <p>هذه الفاتورة تم إنشاؤها وتأكيدها إلكترونياً من خلال نظام إدارة مدرسة السيلا.</p>
+                    <p>شكراً لتعاونكم وثقتكم بنا.</p>
+                </div>
+            </div>
+            <script>
+                window.onload = function() {
+                    setTimeout(function() {
+                        window.print();
+                    }, 500);
+                }
+            </script>
+        </body>
+        </html>
+        <?php
+    }
+
+    /**
+     * Get marks registration filters/options
+     * GET /api/academic/marks/options
+     */
+    public function marksOptions()
+    {
+        $session = $this->authenticateToken();
+        if (!$session) {
+            return $this->response->setJSON(['status' => 'error', 'message' => 'غير مصرح لك بالوصول'])->setStatusCode(401);
+        }
+
+        $role = $session['role'];
+        $userId = $session['user_id'];
+
+        if ($role === 'super_admin') {
+            $schoolId = $this->request->getVar('school_id') ?? 1;
+        } elseif ($role === 'teacher') {
+            $teacher = $this->db->table('teacher')->where('teacher_id', $userId)->get()->getRowArray();
+            $schoolId = $teacher['school'] ?? 0;
+        } else {
+            $admin = $this->db->table('admin')->where('admin_id', $userId)->get()->getRowArray();
+            $schoolId = $admin['school'] ?? 0;
+        }
+
+        $school = $this->db->table('schools')->where('ID', $schoolId)->get()->getRowArray();
+        $currentYear = $school ? $school['year'] : '2025-2026';
+
+        $classes = $this->db->table('class')->where('school', $schoolId)->orderBy('name', 'ASC')->get()->getResultArray();
+        $sections = $this->db->table('section')->where('school', $schoolId)->orderBy('name', 'ASC')->get()->getResultArray();
+        $subjects = $this->db->table('subject')->where('school', $schoolId)->orderBy('name', 'ASC')->get()->getResultArray();
+
+        return $this->response->setJSON([
+            'status' => 'success',
+            'classes' => $classes,
+            'sections' => $sections,
+            'subjects' => $subjects,
+            'current_year' => $currentYear
+        ]);
+    }
+
+    /**
+     * Get students and distribution list for marks registration
+     * GET /api/academic/marks/list
+     */
+    public function marksList()
+    {
+        $session = $this->authenticateToken();
+        if (!$session) {
+            return $this->response->setJSON(['status' => 'error', 'message' => 'غير مصرح لك بالوصول'])->setStatusCode(401);
+        }
+
+        $classId = (int)$this->request->getGet('class_id');
+        $sectionId = (int)$this->request->getGet('section_id');
+        $subjectId = (int)$this->request->getGet('subject_id');
+
+        if (!$classId || !$sectionId || !$subjectId) {
+            return $this->response->setJSON(['status' => 'error', 'message' => 'جميع الفلاتر مطلوبة'])->setStatusCode(400);
+        }
+
+        $role = $session['role'];
+        $userId = $session['user_id'];
+
+        if ($role === 'super_admin') {
+            $schoolId = $this->request->getVar('school_id') ?? 1;
+        } elseif ($role === 'teacher') {
+            $teacher = $this->db->table('teacher')->where('teacher_id', $userId)->get()->getRowArray();
+            $schoolId = $teacher['school'] ?? 0;
+        } else {
+            $admin = $this->db->table('admin')->where('admin_id', $userId)->get()->getRowArray();
+            $schoolId = $admin['school'] ?? 0;
+        }
+
+        $school = $this->db->table('schools')->where('ID', $schoolId)->get()->getRowArray();
+        $currentYear = $school ? $school['year'] : '2025-2026';
+
+        // Load subject distribution
+        $distribution = $this->db->table('subject_mark_distribution')
+            ->where('subject_id', $subjectId)
+            ->where('year', $currentYear)
+            ->orderBy('id', 'ASC')
+            ->get()->getResultArray();
+
+        // If distribution is empty, create a default component using subject max marks
+        if (empty($distribution)) {
+            $subject = $this->db->table('subject')->where('subject_id', $subjectId)->get()->getRowArray();
+            $totalMark = $subject ? (float)$subject['total_mark'] : 100;
+            $distribution = [
+                [
+                    'id' => 0,
+                    'subject_id' => $subjectId,
+                    'name' => 'الامتحان النهائي',
+                    'max_mark' => $totalMark,
+                    'year' => $currentYear
+                ]
+            ];
+        }
+
+        // Get students and their existing marks
+        $students = $this->db->table('student s')
+            ->select('s.student_id, s.name as student_name, m.total_obtained, m.total_possible, m.comment, m.marks_json')
+            ->join('enroll e', 'e.student_id = s.student_id')
+            ->join('subject_marks m', "m.student_id = s.student_id AND m.subject_id = $subjectId AND m.year = '$currentYear'", 'left')
+            ->where('e.class_id', $classId)
+            ->where('e.section_id', $sectionId)
+            ->where('e.year', $currentYear)
+            ->orderBy('s.name', 'ASC')
+            ->get()->getResultArray();
+
+        return $this->response->setJSON([
+            'status' => 'success',
+            'distribution' => $distribution,
+            'students' => $students
+        ]);
+    }
+
+    /**
+     * Save student marks
+     * POST /api/academic/marks/save
+     */
+    public function saveMarks()
+    {
+        $session = $this->authenticateToken();
+        if (!$session) {
+            return $this->response->setJSON(['status' => 'error', 'message' => 'غير مصرح لك بالوصول'])->setStatusCode(401);
+        }
+
+        $input = $this->request->getJSON(true);
+        if (!$input) {
+            $input = $this->request->getPost();
+        }
+
+        $classId = isset($input['class_id']) ? (int)$input['class_id'] : null;
+        $sectionId = isset($input['section_id']) ? (int)$input['section_id'] : null;
+        $subjectId = isset($input['subject_id']) ? (int)$input['subject_id'] : null;
+        $marksData = isset($input['marks']) ? $input['marks'] : [];
+
+        if (!$classId || !$sectionId || !$subjectId || empty($marksData)) {
+            return $this->response->setJSON(['status' => 'error', 'message' => 'بيانات رصد الدرجات غير مكتملة'])->setStatusCode(400);
+        }
+
+        $role = $session['role'];
+        $userId = $session['user_id'];
+
+        if ($role === 'super_admin') {
+            $schoolId = $input['school_id'] ?? 1;
+        } elseif ($role === 'teacher') {
+            $teacher = $this->db->table('teacher')->where('teacher_id', $userId)->get()->getRowArray();
+            $schoolId = $teacher['school'] ?? 0;
+        } else {
+            $admin = $this->db->table('admin')->where('admin_id', $userId)->get()->getRowArray();
+            $schoolId = $admin['school'] ?? 0;
+        }
+
+        $school = $this->db->table('schools')->where('ID', $schoolId)->get()->getRowArray();
+        $currentYear = $school ? $school['year'] : '2025-2026';
+
+        // Save each student's marks
+        foreach ($marksData as $studentMark) {
+            $studentId = (int)$studentMark['student_id'];
+            $scores = isset($studentMark['scores']) ? $studentMark['scores'] : [];
+            $comment = isset($studentMark['comment']) ? $studentMark['comment'] : '';
+
+            $totalObtained = 0.0;
+            foreach ($scores as $compName => $scoreVal) {
+                $totalObtained += (float)$scoreVal;
+            }
+
+            $totalPossible = isset($studentMark['total_possible']) ? (float)$studentMark['total_possible'] : 100.0;
+
+            // Check if record exists
+            $check = $this->db->table('subject_marks')
+                ->where('student_id', $studentId)
+                ->where('subject_id', $subjectId)
+                ->where('year', $currentYear)
+                ->get()->getRowArray();
+
+            $data = [
+                'student_id' => $studentId,
+                'subject_id' => $subjectId,
+                'class_id' => $classId,
+                'section_id' => $sectionId,
+                'school_id' => $schoolId,
+                'marks_json' => json_encode($scores),
+                'total_obtained' => $totalObtained,
+                'total_possible' => $totalPossible,
+                'comment' => $comment,
+                'year' => $currentYear
+            ];
+
+            if ($check) {
+                $this->db->table('subject_marks')
+                    ->where('id', $check['id'])
+                    ->update($data);
+            } else {
+                $this->db->table('subject_marks')
+                    ->insert($data);
+            }
+        }
+
+        return $this->response->setJSON([
+            'status' => 'success',
+            'message' => 'تم حفظ ورصد الدرجات بنجاح'
+        ]);
+    }
+
+    /**
+     * Upload Student Photo
+     * POST /api/students/upload_photo
+     */
+    public function uploadStudentPhoto()
+    {
+        $session = $this->authenticateToken();
+        if (!$session) {
+            return $this->response->setJSON(['status' => 'error', 'message' => 'غير مصرح لك بالوصول'])->setStatusCode(401);
+        }
+
+        $studentId = $this->request->getPost('student_id');
+        if (empty($studentId)) {
+            return $this->response->setJSON(['status' => 'error', 'message' => 'رمز الطالب مطلوب']);
+        }
+
+        $file = $this->request->getFile('photo');
+        if (!$file || !$file->isValid()) {
+            return $this->response->setJSON(['status' => 'error', 'message' => 'الملف غير صالح أو لم يتم تحميل أي صورة']);
+        }
+
+        // Validate that the student exists
+        $student = $this->db->table('student')->where('student_id', $studentId)->get()->getRowArray();
+        if (!$student) {
+            return $this->response->setJSON(['status' => 'error', 'message' => 'الطالب غير موجود']);
+        }
+
+        // Save the photo in upload/student_images/ with name [studentId].jpg
+        $newName = $studentId . '.jpg';
+        $uploadDir = FCPATH . 'upload/student_images/';
+        
+        // Ensure directory exists
+        if (!is_dir($uploadDir)) {
+            mkdir($uploadDir, 0755, true);
+        }
+
+        if ($file->move($uploadDir, $newName, true)) {
+            return $this->response->setJSON([
+                'status' => 'success',
+                'message' => 'تم تحميل وحفظ صورة الطالب بنجاح',
+                'image_url' => base_url('upload/student_images/' . $newName . '?v=' . time())
+            ]);
+        }
+
+        return $this->response->setJSON(['status' => 'error', 'message' => 'فشل حفظ ملف الصورة في الخادم']);
     }
 }
 

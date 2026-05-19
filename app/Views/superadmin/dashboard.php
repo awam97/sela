@@ -32,10 +32,6 @@
                         <div class="qa-icon bg-nile text-white shadow-sm"><i class='bx bxs-user-plus'></i></div>
                         <span class="qa-label"><?= $system_settings['action_create_manager'] ?? 'Manager' ?></span>
                     </a>
-                    <a href="<?= base_url('superadmin/student-center') ?>" class="quick-action-link">
-                        <div class="qa-icon bg-gold shadow-sm"><i class='bx bxs-grid-alt'></i></div>
-                        <span class="qa-label"><?= $system_settings['action_student_center'] ?? 'Students' ?></span>
-                    </a>
                     <a href="<?= base_url('superadmin/settings') ?>" class="quick-action-link">
                         <div class="qa-icon bg-nile text-white shadow-sm"><i class='bx bxs-cog'></i></div>
                         <span class="qa-label"><?= $system_settings['action_system_settings'] ?? 'Settings' ?></span>

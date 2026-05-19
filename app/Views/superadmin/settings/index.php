@@ -187,7 +187,7 @@
                             <div class="col-md-12 search-field">
                                 <div class="form-check form-switch p-3 bg-light rounded-3">
                                     <input class="form-check-input" type="checkbox" name="whatsapp_otp_enabled" value="true" id="waOtpToggle" <?= ($whatsapp_otp_enabled ?? 'false') == 'true' ? 'checked' : '' ?>>
-                                    <label class="form-check-label fw-bold ms-2" for="waOtpToggle">تفعيل إرسال رمز التحقق عبر WhatsApp</label>
+                                    <label class="form-check-label fw-bold ms-2" for="waOtpToggle">تفعيل التحقق الثنائي (OTP) لتسجيل الدخول (الويب والتطبيقات)</label>
                                 </div>
                             </div>
                             <div class="col-md-12 search-field">
@@ -240,34 +240,6 @@
                                 </div>
                             </div>
                             <?php endfor; ?>
-                        </div>
-
-                        <h6 class="fw-bold text-nile mb-3 border-top pt-4">قسم الأدوار (Roles)</h6>
-                        <div class="row g-4">
-                            <div class="col-md-6 search-field">
-                                <label class="form-label text-muted small fw-bold">عنوان القسم الرئيسي</label>
-                                <input type="text" name="landing_roles_title" value="<?= $landing_roles_title ?? '' ?>" class="form-control border-light bg-light">
-                            </div>
-                            <div class="col-md-6 search-field">
-                                <label class="form-label text-muted small fw-bold">وصف القسم الفرعي</label>
-                                <input type="text" name="landing_roles_subtitle" value="<?= $landing_roles_subtitle ?? '' ?>" class="form-control border-light bg-light">
-                            </div>
-                            <div class="col-md-6 search-field">
-                                <div class="p-3 bg-light rounded-3 border-start border-4 border-primary">
-                                    <label class="form-label text-muted small fw-bold">دور 1: العنوان</label>
-                                    <input type="text" name="landing_role_1_title" value="<?= $landing_role_1_title ?? '' ?>" class="form-control border-white mb-3 shadow-sm">
-                                    <label class="form-label text-muted small fw-bold">دور 1: القائمة</label>
-                                    <textarea name="landing_role_1_list" class="form-control border-white no-editor shadow-sm" rows="5"><?= $landing_role_1_list ?? '' ?></textarea>
-                                </div>
-                            </div>
-                            <div class="col-md-6 search-field">
-                                <div class="p-3 bg-light rounded-3 border-start border-4 border-gold">
-                                    <label class="form-label text-muted small fw-bold">دور 2: العنوان</label>
-                                    <input type="text" name="landing_role_2_title" value="<?= $landing_role_2_title ?? '' ?>" class="form-control border-white mb-3 shadow-sm">
-                                    <label class="form-label text-muted small fw-bold">دور 2: القائمة</label>
-                                    <textarea name="landing_role_2_list" class="form-control border-white no-editor shadow-sm" rows="5"><?= $landing_role_2_list ?? '' ?></textarea>
-                                </div>
-                            </div>
                         </div>
                     </div>
                 </div>

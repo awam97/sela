@@ -192,9 +192,18 @@ $routes->group('api', ['namespace' => 'App\Controllers\Api'], function ($routes)
     $routes->post('students/create', 'MobileApi::createStudent');
     $routes->post('students/edit/(:num)', 'MobileApi::editStudent/$1');
     $routes->post('students/delete/(:num)', 'MobileApi::deleteStudent/$1');
+    $routes->get('students/identify/(:num)', 'MobileApi::identifyStudent/$1');
     $routes->post('attendance/save', 'MobileApi::saveAttendance');
     $routes->get('registrations', 'MobileApi::registrations');
     $routes->post('registrations/approve/(:num)', 'MobileApi::approveRegistration/$1');
     $routes->post('registrations/reject/(:num)', 'MobileApi::rejectRegistration/$1');
+    $routes->get('profile', 'MobileApi::profile');
+    $routes->post('profile/update', 'MobileApi::updateProfile');
+    $routes->get('finance/invoices', 'MobileApi::invoices');
+    $routes->get('finance/invoice/print/(:num)', 'MobileApi::printInvoice/$1');
+    $routes->get('academic/marks/options', 'MobileApi::marksOptions');
+    $routes->get('academic/marks/list', 'MobileApi::marksList');
+    $routes->post('academic/marks/save', 'MobileApi::saveMarks');
+    $routes->post('students/upload_photo', 'MobileApi::uploadStudentPhoto');
 });
 
