@@ -119,7 +119,7 @@ jobs:
       - name: Download Android APK
         uses: actions/download-artifact@v4
         with:
-          name: sela-android-apk
+          name: sela-android-debug-apk
           path: ./
 
       - name: Download iOS App
