@@ -35,12 +35,18 @@ android {
     ndkVersion = flutter.ndkVersion
 
     signingConfigs {
-        if (keystorePropertiesFile.exists()) {
-            release {
+        release {
+            if (keystorePropertiesFile.exists()) {
                 keyAlias = keystoreProperties['keyAlias']
                 keyPassword = keystoreProperties['keyPassword']
                 storeFile = keystoreProperties['storeFile'] ? file(keystoreProperties['storeFile']) : null
                 storePassword = keystoreProperties['storePassword']
+            } else {
+                // Fallback debug parameters for remote CI
+                keyAlias = 'androiddebugkey'
+                keyPassword = 'android'
+                storeFile = file('debug.keystore')
+                storePassword = 'android'
             }
         }
     }
