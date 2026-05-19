@@ -27,6 +27,14 @@ class SelaMobileApp extends StatelessWidget {
       title: 'صلة - إدارة المدارس والجمعيات',
       debugShowCheckedModeBanner: false,
       
+      // Enforce Global RTL directionality at the very root of Sela
+      builder: (context, child) {
+        return Directionality(
+          textDirection: TextDirection.rtl,
+          child: child!,
+        );
+      },
+      
       // Strict Arabic RTL Localization Configurations
       locale: const Locale('ar', 'AE'),
       supportedLocales: const [
@@ -38,48 +46,86 @@ class SelaMobileApp extends StatelessWidget {
         GlobalCupertinoLocalizations.delegate,
       ],
 
-      // Sela Premium Design System (Navy and Gold)
+      // Sela Premium Modern Design System (Luxury Midnight & Gold)
       theme: ThemeData(
         useMaterial3: true,
-        primaryColor: const Color(0xff192a56),
+        primaryColor: const Color(0xff0f172a),
+        scaffoldBackgroundColor: const Color(0xfff8fafc), // Premium soft white background
         colorScheme: ColorScheme.fromSeed(
-          seedColor: const Color(0xff192a56),
-          primary: const Color(0xff192a56),
+          seedColor: const Color(0xff0f172a),
+          primary: const Color(0xff0f172a),
           secondary: const Color(0xffc5a021),
           surface: Colors.white,
-          background: const Color(0xfff4f6fa),
+          background: const Color(0xfff8fafc),
         ),
         
         // Cairo Font is the undisputed standard for luxury Arabic interfaces
         textTheme: GoogleFonts.cairoTextTheme(
           Theme.of(context).textTheme,
         ).apply(
-          bodyColor: const Color(0xff2d3748),
-          displayColor: const Color(0xff192a56),
+          bodyColor: const Color(0xff334155), // Slate dark
+          displayColor: const Color(0xff0f172a),
         ),
         
+        // Luxury Card Theme with clean flat borders & micro-shadows
+        cardTheme: CardTheme(
+          color: Colors.white,
+          elevation: 0,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+            side: const BorderSide(color: Color(0xfff1f5f9), width: 1.2),
+          ),
+          shadowColor: Colors.black.withOpacity(0.03),
+        ),
+        
+        // Modern Transparent AppBars (iOS Luxury Style)
         appBarTheme: AppBarTheme(
-          backgroundColor: const Color(0xff192a56),
-          foregroundColor: Colors.white,
+          backgroundColor: Colors.transparent,
+          foregroundColor: const Color(0xff0f172a),
           elevation: 0,
           centerTitle: true,
+          iconTheme: const IconThemeData(color: Color(0xff0f172a)),
           titleTextStyle: GoogleFonts.cairo(
-            fontSize: 20,
-            fontWeight: FontWeight.bold,
-            color: Colors.white,
+            fontSize: 18,
+            fontWeight: FontWeight.w900,
+            color: const Color(0xff0f172a),
           ),
         ),
+
+        // Premium Form Fields with soft filled backgrounds & gold focus indicators
+        inputDecorationTheme: InputDecorationTheme(
+          filled: true,
+          fillColor: const Color(0xfff8fafc),
+          contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(16),
+            borderSide: BorderSide.none,
+          ),
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(16),
+            borderSide: const BorderSide(color: Color(0xffe2e8f0), width: 1.2),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(16),
+            borderSide: const BorderSide(color: Color(0xffc5a021), width: 2),
+          ),
+          labelStyle: GoogleFonts.cairo(color: const Color(0xff64748b), fontSize: 13),
+          hintStyle: GoogleFonts.cairo(color: const Color(0xff94a3b8), fontSize: 13),
+        ),
         
+        // Luxury Flat Buttons
         elevatedButtonTheme: ElevatedButtonThemeData(
           style: ElevatedButton.styleFrom(
-            backgroundColor: const Color(0xff192a56),
+            backgroundColor: const Color(0xff0f172a),
             foregroundColor: Colors.white,
-            padding: const EdgeInsets.symmetric(vertical: 14),
+            padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 24),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(16),
             ),
+            elevation: 2,
+            shadowColor: const Color(0xff0f172a).withOpacity(0.15),
             textStyle: GoogleFonts.cairo(
-              fontSize: 16,
+              fontSize: 15,
               fontWeight: FontWeight.bold,
             ),
           ),
