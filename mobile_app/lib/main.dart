@@ -67,17 +67,6 @@ class SelaMobileApp extends StatelessWidget {
           displayColor: const Color(0xff0f172a),
         ),
         
-        // Luxury Card Theme with clean flat borders & micro-shadows
-        cardTheme: CardTheme(
-          color: Colors.white,
-          elevation: 0,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20),
-            side: const BorderSide(color: Color(0xfff1f5f9), width: 1.2),
-          ),
-          shadowColor: Colors.black.withOpacity(0.03),
-        ),
-        
         // Modern Transparent AppBars (iOS Luxury Style)
         appBarTheme: AppBarTheme(
           backgroundColor: Colors.transparent,
