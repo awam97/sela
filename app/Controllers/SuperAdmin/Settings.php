@@ -172,6 +172,11 @@ class Settings extends BaseController
         foreach ($defaults as $key => $val) {
             if (!isset($data[$key])) {
                 $data[$key] = $val;
+                // Auto-seed missing setting into the database to guarantee it is editable immediately
+                $db->table('settings')->insert([
+                    'type' => $key,
+                    'description' => $val
+                ]);
             }
         }
 
