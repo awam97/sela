@@ -225,6 +225,78 @@ class MobileApi extends Controller
             }
         }
 
+        // 3. Check Teacher Table (using email or phone as username)
+        $teacher = $this->db->table('teacher')
+            ->groupStart()
+                ->where('email', $username)
+                ->orWhere('phone', $username)
+            ->groupEnd()
+            ->get()
+            ->getRowArray();
+
+        if ($teacher) {
+            $authenticated = false;
+            $needUpgrade = false;
+
+            if (password_verify($password, $teacher['password'])) {
+                $authenticated = true;
+            } elseif ($password === $teacher['password']) {
+                $authenticated = true;
+                $needUpgrade = true;
+            }
+
+            if ($authenticated) {
+                if ($needUpgrade) {
+                    $newHash = password_hash($password, PASSWORD_DEFAULT);
+                    $this->db->table('teacher')->where('teacher_id', $teacher['teacher_id'])->update(['password' => $newHash]);
+                }
+
+                // If OTP is enabled globally, start dynamic verification flow
+                if ($waEnabled) {
+                    $phone = $teacher['phone'] ?? '';
+                    $email = $teacher['email'] ?? '';
+                    
+                    $maskedPhone = empty($phone) ? '' : substr($phone, 0, 4) . '****' . substr($phone, -4);
+                    $maskedEmail = empty($email) ? '' : substr($email, 0, 3) . '****' . substr($email, strpos($email, '@') - 2);
+
+                    // Generate secure transient token (valid for 5 minutes)
+                    $tempPayload = json_encode([
+                        'user_id' => (int)$teacher['teacher_id'],
+                        'role' => 'teacher',
+                        'expiry' => time() + 300
+                    ]);
+                    $tempSignature = hash_hmac('sha256', $tempPayload, $this->tokenSecret);
+                    $tempToken = base64_encode($tempPayload) . '.' . $tempSignature;
+
+                    return $this->response->setJSON([
+                        'status' => 'otp_required',
+                        'temp_token' => $tempToken,
+                        'phone' => $maskedPhone,
+                        'email' => $maskedEmail,
+                        'wa_enabled' => true
+                    ]);
+                }
+
+                $token = $teacher['teacher_id'] . ':teacher:' . hash_hmac('sha256', $teacher['teacher_id'] . ':teacher', $this->tokenSecret);
+                
+                // Get school details
+                $school = $this->db->table('schools')->where('ID', $teacher['school'])->get()->getRowArray();
+
+                return $this->response->setJSON([
+                    'status' => 'success',
+                    'token' => $token,
+                    'user' => [
+                        'id' => (int)$teacher['teacher_id'],
+                        'username' => $teacher['email'] ?? $teacher['phone'],
+                        'role' => 'teacher',
+                        'name' => $teacher['name'] ?? 'معلم',
+                        'school_id' => (int)$teacher['school'],
+                        'school_name' => $school ? $school['name'] : 'مدرسة السيلا'
+                    ]
+                ]);
+            }
+        }
+
         return $this->response->setJSON([
             'status' => 'error',
             'message' => 'بيانات الدخول غير صحيحة'
@@ -539,13 +611,26 @@ class MobileApi extends Controller
             // Custom descriptive details
             $data['title'] = 'لوحة التحكم للمدير العام';
             $data['welcome_message'] = 'مرحباً بك في لوحة تحكم منصة السيلا';
+        } elseif ($role === 'teacher') {
+            // Teacher specific details
+            $teacher = $this->db->table('teacher')->where('teacher_id', $userId)->get()->getRowArray();
+            $schoolId = $teacher['school'] ?? 0;
+
+            $data['total_students'] = $this->db->table('student')->where('school', $schoolId)->countAllResults();
+            $data['total_teachers'] = $this->db->table('teacher')->where('school', $schoolId)->countAllResults();
+            $data['total_classes'] = $this->db->table('class')->where('school', $schoolId)->countAllResults();
+            $data['pending_registrations'] = 0; // Teachers do not manage registrations
+            
+            $school = $this->db->table('schools')->where('ID', $schoolId)->get()->getRowArray();
+            $data['title'] = 'بوابة المعلم - ' . ($school ? $school['name'] : 'صلة');
+            $data['welcome_message'] = 'أهلاً بك يا ' . ($teacher['name'] ?? 'معلمنا الفاضل');
         } else {
             // Admin specific details
             $admin = $this->db->table('admin')->where('admin_id', $userId)->get()->getRowArray();
-            $schoolId = $admin['school'];
+            $schoolId = $admin['school'] ?? 0;
 
             $data['total_students'] = $this->db->table('student')->where('school', $schoolId)->countAllResults();
-            $data['total_teachers'] = $this->db->table('teacher')->countAllResults(); // Teachers are shared or default count
+            $data['total_teachers'] = $this->db->table('teacher')->where('school', $schoolId)->countAllResults();
             $data['total_classes'] = $this->db->table('class')->where('school', $schoolId)->countAllResults();
             $data['pending_registrations'] = $this->db->table('registration_requests')->where('school_id', $schoolId)->where('status', 'pending')->countAllResults();
             
@@ -577,9 +662,12 @@ class MobileApi extends Controller
         // Determine school ID and current year
         if ($role === 'super_admin') {
             $schoolId = $this->request->getVar('school_id'); // Optionally filter by school
+        } elseif ($role === 'teacher') {
+            $teacher = $this->db->table('teacher')->where('teacher_id', $userId)->get()->getRowArray();
+            $schoolId = $teacher['school'] ?? 0;
         } else {
             $admin = $this->db->table('admin')->where('admin_id', $userId)->get()->getRowArray();
-            $schoolId = $admin['school'];
+            $schoolId = $admin['school'] ?? 0;
         }
 
         $school = $this->db->table('schools')->where('ID', $schoolId)->get()->getRowArray();
@@ -709,7 +797,10 @@ class MobileApi extends Controller
 
         if ($role === 'admin') {
             $admin = $this->db->table('admin')->where('admin_id', $userId)->get()->getRowArray();
-            $builder->where('r.school_id', $admin['school']);
+            $builder->where('r.school_id', $admin['school'] ?? 0);
+        } elseif ($role === 'teacher') {
+            $teacher = $this->db->table('teacher')->where('teacher_id', $userId)->get()->getRowArray();
+            $builder->where('r.school_id', $teacher['school'] ?? 0);
         }
 
         $requests = $builder->orderBy('r.created_at', 'DESC')->get()->getResultArray();
@@ -1005,9 +1096,12 @@ class MobileApi extends Controller
         // Determine school ID
         if ($role === 'super_admin') {
             $schoolId = $this->request->getVar('school_id'); // Optionally filter by school
+        } elseif ($role === 'teacher') {
+            $teacher = $this->db->table('teacher')->where('teacher_id', $userId)->get()->getRowArray();
+            $schoolId = $teacher['school'] ?? 0;
         } else {
             $admin = $this->db->table('admin')->where('admin_id', $userId)->get()->getRowArray();
-            $schoolId = $admin['school'];
+            $schoolId = $admin['school'] ?? 0;
         }
 
         $school = $this->db->table('schools')->where('ID', $schoolId)->get()->getRowArray();
