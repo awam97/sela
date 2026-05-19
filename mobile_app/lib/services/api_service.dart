@@ -96,6 +96,13 @@ class ApiService {
 
       final decoded = jsonDecode(response.body);
       if (response.statusCode == 200 && decoded['status'] == 'success') {
+        if (decoded['app_titles'] != null) {
+          final prefs = await SharedPreferences.getInstance();
+          final appTitles = decoded['app_titles'] as Map<String, dynamic>;
+          for (var entry in appTitles.entries) {
+            await prefs.setString('app_title_${entry.key}', entry.value.toString());
+          }
+        }
         return {'status': 'success', 'data': decoded['data']};
       }
       return {'status': 'error', 'message': decoded['message'] ?? 'فشل تحميل بيانات لوحة التحكم'};

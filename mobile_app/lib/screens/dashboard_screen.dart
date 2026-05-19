@@ -13,6 +13,7 @@ import 'finance_screen.dart';
 import 'marks_screen.dart';
 import 'student_photos_screen.dart';
 import 'student_affairs_screen.dart';
+import '../services/app_titles.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({Key? key}) : super(key: key);
@@ -340,7 +341,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
               // Action buttons list
               _buildActionButton(
                 context,
-                'شؤون الطلبة والقبول',
+                AppTitles.studentAffairs,
                 'إدارة ملفات الطلاب، الحضور والغياب، رصد الدرجات، الصور الشخصية، والطلبات الجديدة.',
                 Icons.school_rounded,
                 const Color(0xff192a56),
@@ -360,7 +361,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
               _buildActionButton(
                 context,
-                'دليل المناهج والمواد',
+                AppTitles.subjects,
                 'استعراض المواد والمنهج الدراسي والدرجات المطلوبة للنجاح.',
                 Icons.menu_book_rounded,
                 const Color(0xffc5a021),
@@ -373,7 +374,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
               _buildActionButton(
                 context,
-                'الشؤون المالية والفواتير',
+                AppTitles.finance,
                 'عرض خلاصة فواتير المدرسة وسجل العمليات والمدفوعات والمستحقات المتبقية.',
                 Icons.account_balance_wallet_rounded,
                 const Color(0xff16a34a),
@@ -386,7 +387,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
               _buildActionButton(
                 context,
-                'تعديل الملف الشخصي',
+                AppTitles.profile,
                 'تحديث بياناتك الشخصية، البريد الإلكتروني، ورقم الهاتف، وتعديل كلمة المرور.',
                 Icons.manage_accounts_rounded,
                 const Color(0xff192a56),

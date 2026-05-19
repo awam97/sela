@@ -5,9 +5,13 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'screens/login_screen.dart';
 import 'screens/dashboard_screen.dart';
 import 'screens/splash_screen.dart';
+import 'services/app_titles.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  
+  // Initialize dynamic titles caching system
+  await AppTitles.init();
   
   // Check if API session token exists
   final prefs = await SharedPreferences.getInstance();

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../services/api_service.dart';
+import '../services/app_titles.dart';
 
 class SubjectsScreen extends StatefulWidget {
   const SubjectsScreen({Key? key}) : super(key: key);
@@ -70,7 +71,7 @@ class _SubjectsScreenState extends State<SubjectsScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          'دليل المناهج والمواد',
+          AppTitles.subjects,
           style: GoogleFonts.cairo(fontWeight: FontWeight.bold, fontSize: 18, color: Colors.white),
         ),
         centerTitle: true,

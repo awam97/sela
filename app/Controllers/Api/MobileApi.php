@@ -72,6 +72,31 @@ class MobileApi extends Controller
     }
 
     /**
+     * Fetch custom mobile app view titles with robust defaults
+     */
+    private function getAppTitles()
+    {
+        $settingsRows = $this->db->table('settings')->get()->getResultArray();
+        $settings = [];
+        foreach ($settingsRows as $row) {
+            $settings[$row['type']] = $row['description'];
+        }
+
+        return [
+            'menu_admin_students' => !empty(trim($settings['menu_admin_students'] ?? '')) ? $settings['menu_admin_students'] : 'دليل وشؤون الطلاب',
+            'menu_admin_attendance' => !empty(trim($settings['menu_admin_attendance'] ?? '')) ? $settings['menu_admin_attendance'] : 'تسجيل الحضور والغياب',
+            'menu_admin_registrations' => !empty(trim($settings['menu_admin_registrations'] ?? '')) ? $settings['menu_admin_registrations'] : 'طلبات الالتحاق الجديدة',
+            'menu_admin_finance' => !empty(trim($settings['menu_admin_finance'] ?? '')) ? $settings['menu_admin_finance'] : 'الإدارة المالية والفواتير',
+            'menu_admin_settings' => !empty(trim($settings['menu_admin_settings'] ?? '')) ? $settings['menu_admin_settings'] : 'الملف الشخصي للمسؤول',
+            'menu_mobile_subjects' => !empty(trim($settings['menu_mobile_subjects'] ?? '')) ? $settings['menu_mobile_subjects'] : 'دليل المناهج والمواد',
+            'menu_mobile_marks' => !empty(trim($settings['menu_mobile_marks'] ?? '')) ? $settings['menu_mobile_marks'] : 'رصد درجات المواد',
+            'menu_mobile_student_affairs' => !empty(trim($settings['menu_mobile_student_affairs'] ?? '')) ? $settings['menu_mobile_student_affairs'] : 'شؤون الطلبة والقبول',
+            'menu_mobile_qr_scanner' => !empty(trim($settings['menu_mobile_qr_scanner'] ?? '')) ? $settings['menu_mobile_qr_scanner'] : 'مسح معرف الطالب (QR)',
+            'menu_mobile_student_photos' => !empty(trim($settings['menu_mobile_student_photos'] ?? '')) ? $settings['menu_mobile_student_photos'] : 'إدارة صور الطلاب',
+        ];
+    }
+
+    /**
      * Authentication Endpoint
      * POST /api/login
      */
@@ -695,7 +720,8 @@ class MobileApi extends Controller
 
         return $this->response->setJSON([
             'status' => 'success',
-            'data' => $data
+            'data' => $data,
+            'app_titles' => $this->getAppTitles()
         ]);
     }
 

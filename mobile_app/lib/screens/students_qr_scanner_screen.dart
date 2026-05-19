@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import '../services/api_service.dart';
+import '../services/app_titles.dart';
 
 class StudentsQrScannerScreen extends StatefulWidget {
   const StudentsQrScannerScreen({Key? key}) : super(key: key);
@@ -375,7 +376,7 @@ class _StudentsQrScannerScreenState extends State<StudentsQrScannerScreen> with 
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          'مسح معرف الطالب (QR)',
+          AppTitles.qrScanner,
           style: GoogleFonts.cairo(fontWeight: FontWeight.bold, fontSize: 18, color: Colors.white),
         ),
         centerTitle: true,

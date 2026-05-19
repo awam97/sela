@@ -313,6 +313,32 @@
                                     </div>
                                 </td>
                             </tr>
+                            <tr class="table-section-header bg-light/50"><td colspan="2" class="ps-4 py-2 fw-bold text-nile small">تسميات شاشات تطبيق الهاتف (Mobile App Views)</td></tr>
+                            <tr class="search-row">
+                                <td colspan="2" class="p-0">
+                                    <div class="row g-0">
+                                        <?php 
+                                        $mobile_views = [
+                                            'menu_admin_students' => 'شاشة دليل وشؤون الطلاب',
+                                            'menu_admin_attendance' => 'شاشة تسجيل الحضور والغياب',
+                                            'menu_admin_registrations' => 'شاشة طلبات الالتحاق الجديدة',
+                                            'menu_admin_finance' => 'شاشة الحسابات والمالية والفواتير',
+                                            'menu_admin_settings' => 'شاشة الملف الشخصي للمسؤول',
+                                            'menu_mobile_subjects' => 'شاشة دليل المناهج والمواد',
+                                            'menu_mobile_marks' => 'شاشة رصد الدرجات',
+                                            'menu_mobile_student_affairs' => 'شاشة شؤون الطلبة والقبول',
+                                            'menu_mobile_qr_scanner' => 'شاشة مسح الـ QR للكاميرا',
+                                            'menu_mobile_student_photos' => 'شاشة إدارة صور الطلاب'
+                                        ];
+                                        foreach($mobile_views as $key => $label): ?>
+                                        <div class="col-md-6 border-bottom border-end p-3 search-field">
+                                            <label class="small fw-bold d-block mb-1"><?= $label ?></label>
+                                            <input type="text" name="<?= $key ?>" value="<?= $$key ?? '' ?>" class="form-control form-control-sm border-0 bg-light">
+                                        </div>
+                                        <?php endforeach; ?>
+                                    </div>
+                                </td>
+                            </tr>
                         </tbody>
                     </table>
                 </div>

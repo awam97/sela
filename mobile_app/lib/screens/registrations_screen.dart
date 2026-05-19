@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../services/api_service.dart';
+import '../services/app_titles.dart';
 
 class RegistrationsScreen extends StatefulWidget {
   const RegistrationsScreen({Key? key}) : super(key: key);
@@ -144,7 +145,7 @@ class _RegistrationsScreenState extends State<RegistrationsScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          'طلبات الالتحاق الجديدة',
+          AppTitles.registrations,
           style: GoogleFonts.cairo(fontWeight: FontWeight.bold, fontSize: 18, color: Colors.white),
         ),
         centerTitle: true,

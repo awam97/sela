@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../services/api_service.dart';
+import '../services/app_titles.dart';
 import 'package:intl/intl.dart' as intl;
 import 'package:url_launcher/url_launcher.dart';
 
@@ -342,7 +343,7 @@ class _FinanceScreenState extends State<FinanceScreen> {
       backgroundColor: const Color(0xfff8fafc),
       appBar: AppBar(
         title: Text(
-          'الإدارة المالية والفواتير',
+          AppTitles.finance,
           style: GoogleFonts.cairo(fontWeight: FontWeight.bold, fontSize: 18, color: Colors.white),
         ),
         centerTitle: true,

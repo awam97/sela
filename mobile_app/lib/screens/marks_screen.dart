@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../services/api_service.dart';
+import '../services/app_titles.dart';
 
 class MarksScreen extends StatefulWidget {
   const MarksScreen({Key? key}) : super(key: key);
@@ -350,7 +351,7 @@ class _MarksScreenState extends State<MarksScreen> {
       backgroundColor: const Color(0xfff8fafc),
       appBar: AppBar(
         title: Text(
-          'رصد درجات المواد',
+          AppTitles.marks,
           style: GoogleFonts.cairo(fontWeight: FontWeight.w900, color: Colors.white),
         ),
         centerTitle: true,

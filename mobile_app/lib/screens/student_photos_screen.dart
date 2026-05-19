@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
 import '../services/api_service.dart';
+import '../services/app_titles.dart';
 
 class StudentPhotosScreen extends StatefulWidget {
   const StudentPhotosScreen({Key? key}) : super(key: key);
@@ -151,7 +152,7 @@ class _StudentPhotosScreenState extends State<StudentPhotosScreen> {
       backgroundColor: const Color(0xfff8fafc),
       appBar: AppBar(
         title: Text(
-          'إدارة صور الطلاب',
+          AppTitles.studentPhotos,
           style: GoogleFonts.cairo(fontWeight: FontWeight.w900, color: Colors.white),
         ),
         centerTitle: true,

@@ -6,6 +6,7 @@ import 'students_qr_scanner_screen.dart';
 import 'student_photos_screen.dart';
 import 'registrations_screen.dart';
 import 'marks_screen.dart';
+import '../services/app_titles.dart';
 
 class StudentAffairsScreen extends StatelessWidget {
   final bool isSuper;
@@ -26,14 +27,14 @@ class StudentAffairsScreen extends StatelessWidget {
     // List of student affairs items
     final List<Map<String, dynamic>> items = [
       {
-        'title': 'دليل وشؤون الطلاب',
+        'title': AppTitles.students,
         'desc': 'البحث عن الطلاب والتحكم ببياناتهم وسجلاتهم.',
         'icon': Icons.supervised_user_circle_rounded,
         'color': const Color(0xff0f172a),
         'page': const StudentsScreen(),
       },
       {
-        'title': 'مسح رمز الطالب (QR)',
+        'title': AppTitles.qrScanner,
         'desc': 'امسح الرمز المربوط بالهوية للتحقق الفوري.',
         'icon': Icons.qr_code_scanner_rounded,
         'color': const Color(0xff192a56),
@@ -41,28 +42,28 @@ class StudentAffairsScreen extends StatelessWidget {
       },
       if (!isSuper)
         {
-          'title': 'تسجيل الحضور والغياب',
+          'title': AppTitles.attendance,
           'desc': 'رصد الحضور والغياب اليومي للطلاب بالفصول.',
           'icon': Icons.assignment_turned_in_rounded,
           'color': const Color(0xffc5a021),
           'page': const AttendanceScreen(),
         },
       {
-        'title': 'رصد درجات المواد',
+        'title': AppTitles.marks,
         'desc': 'إدخال وتحديث درجات الطلاب في الاختبارات والأنشطة.',
         'icon': Icons.app_registration_rounded,
         'color': const Color(0xffc5a021),
         'page': const MarksScreen(),
       },
       {
-        'title': 'إدارة صور الطلاب',
+        'title': AppTitles.studentPhotos,
         'desc': 'التقاط وتحديث الصور الشخصية للطلاب عبر الكاميرا.',
         'icon': Icons.camera_enhance_rounded,
         'color': const Color(0xff0284c7),
         'page': const StudentPhotosScreen(),
       },
       {
-        'title': 'طلبات الالتحاق الجديدة',
+        'title': AppTitles.registrations,
         'desc': 'مراجعة واعتماد ملفات تسجيل الطلاب المنضمين حديثاً.',
         'icon': Icons.person_add_rounded,
         'color': Colors.orange.shade700,
@@ -75,7 +76,7 @@ class StudentAffairsScreen extends StatelessWidget {
       backgroundColor: const Color(0xfff8fafc),
       appBar: AppBar(
         title: Text(
-          'شؤون الطلبة والقبول',
+          AppTitles.studentAffairs,
           style: GoogleFonts.cairo(fontWeight: FontWeight.bold, fontSize: 18, color: Colors.white),
         ),
         centerTitle: true,
