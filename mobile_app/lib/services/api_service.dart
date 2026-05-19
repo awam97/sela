@@ -2,13 +2,19 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'package:flutter/foundation.dart';
+
 class ApiService {
   static const String _baseUrl = 'https://graya.ly/api';
+  static const String _localUrl = 'http://localhost:8080/api';
 
   /**
-   * Fetch Sela's hardcoded online web API URL
+   * Fetch Sela's web API URL dynamically based on environment
    */
   static Future<String> getBaseUrl() async {
+    if (kDebugMode) {
+      return _localUrl;
+    }
     return _baseUrl;
   }
 

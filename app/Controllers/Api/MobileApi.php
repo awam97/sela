@@ -75,6 +75,8 @@ class MobileApi extends Controller
      * Authentication Endpoint
      * POST /api/login
      */
+    public function login()
+    {
         // Bulletproof parsing: Support both raw JSON payloads and standard POST parameters
         $json = $this->request->getJSON(true);
         $username = $json['username'] ?? $this->request->getVar('username');
