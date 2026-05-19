@@ -6,15 +6,11 @@ import 'package:flutter/foundation.dart';
 
 class ApiService {
   static const String _baseUrl = 'https://graya.ly/api';
-  static const String _localUrl = 'http://localhost:8080/api';
 
   /**
-   * Fetch Sela's web API URL dynamically based on environment
+   * Fetch Sela's hardcoded online web API URL
    */
   static Future<String> getBaseUrl() async {
-    if (kDebugMode) {
-      return _localUrl;
-    }
     return _baseUrl;
   }
 
