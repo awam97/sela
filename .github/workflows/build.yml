@@ -76,7 +76,7 @@ jobs:
     name: Sync Webapp to Live Server
     runs-on: ubuntu-latest
     needs: [build-android, build-ios]
-    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
+    if: (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master') && secrets.FTP_SERVER != ''
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
