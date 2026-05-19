@@ -61,15 +61,15 @@ jobs:
           cd mobile_app
           flutter pub get
 
-      - name: Build iOS Application (Simulator/Debug Mode)
+      - name: Build iOS Application (Release Mode)
         run: |
           cd mobile_app
-          flutter build ios --debug --no-codesign
+          flutter build ios --release --no-codesign
 
       - name: Upload iOS App Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: sela-ios-debug-app
+          name: sela-ios-release-app
           path: mobile_app/build/ios/iphoneos/Runner.app
 
   deploy-backend:

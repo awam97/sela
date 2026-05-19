@@ -7,12 +7,12 @@ Write-Host "==============================================" -ForegroundColor Yel
 
 # 1. Locate the downloaded Sela iOS zip
 $downloadsFolder = "$env:USERPROFILE\Downloads"
-$zipPath = Join-Path $downloadsFolder "sela-ios-debug-app.zip"
+$zipPath = Join-Path $downloadsFolder "sela-ios-release-app.zip"
 
 if (!(Test-Path $zipPath)) {
-    Write-Host "`nError: Could not find 'sela-ios-debug-app.zip' in your Downloads folder!" -ForegroundColor Red
+    Write-Host "`nError: Could not find 'sela-ios-release-app.zip' in your Downloads folder!" -ForegroundColor Red
     Write-Host "Please download it first from GitHub Actions:" -ForegroundColor White
-    Write-Host "https://github.com/awam97/sela/actions/runs/26043876810" -ForegroundColor Cyan
+    Write-Host "https://github.com/awam97/sela/actions" -ForegroundColor Cyan
     Write-Host "`nThen run this script again." -ForegroundColor Yellow
     Write-Host ""
     Read-Host "Press Enter to exit..."

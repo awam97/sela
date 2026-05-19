@@ -16,3 +16,5 @@ writable/
 *.log
 .idea/
 .vscode/
+*.ipa
+.temp_ios_extract/
