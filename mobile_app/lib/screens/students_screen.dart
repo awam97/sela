@@ -453,6 +453,7 @@ class _StudentsScreenState extends State<StudentsScreen> {
         elevation: 0,
         backgroundColor: const Color(0xff192A56),
         foregroundColor: Colors.white,
+        iconTheme: const IconThemeData(color: Colors.white),
       ),
       body: Column(
         children: [

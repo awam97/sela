@@ -82,6 +82,7 @@ class StudentAffairsScreen extends StatelessWidget {
         elevation: 0,
         backgroundColor: primaryColor,
         foregroundColor: Colors.white,
+        iconTheme: const IconThemeData(color: Colors.white),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios_rounded, color: Colors.white),
           onPressed: () {

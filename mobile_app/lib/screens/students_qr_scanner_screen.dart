@@ -382,6 +382,7 @@ class _StudentsQrScannerScreenState extends State<StudentsQrScannerScreen> with 
         elevation: 0,
         backgroundColor: const Color(0xff192A56),
         foregroundColor: Colors.white,
+        iconTheme: const IconThemeData(color: Colors.white),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(24),

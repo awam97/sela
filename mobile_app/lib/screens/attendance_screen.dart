@@ -141,6 +141,7 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
         elevation: 0,
         backgroundColor: const Color(0xff192A56),
         foregroundColor: Colors.white,
+        iconTheme: const IconThemeData(color: Colors.white),
       ),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator(color: Color(0xff192a56)))

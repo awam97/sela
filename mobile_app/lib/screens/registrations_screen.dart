@@ -151,6 +151,7 @@ class _RegistrationsScreenState extends State<RegistrationsScreen> {
         elevation: 0,
         backgroundColor: const Color(0xff192A56),
         foregroundColor: Colors.white,
+        iconTheme: const IconThemeData(color: Colors.white),
       ),
       body: RefreshIndicator(
         onRefresh: _fetchRequests,
