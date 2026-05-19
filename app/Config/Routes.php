@@ -188,6 +188,7 @@ $routes->group('api', ['namespace' => 'App\Controllers\Api'], function ($routes)
     $routes->post('verify-otp', 'MobileApi::verifyOtp');
     $routes->get('dashboard', 'MobileApi::dashboard');
     $routes->get('students', 'MobileApi::students');
+    $routes->get('subjects', 'MobileApi::subjects');
     $routes->post('students/create', 'MobileApi::createStudent');
     $routes->post('students/edit/(:num)', 'MobileApi::editStudent/$1');
     $routes->post('students/delete/(:num)', 'MobileApi::deleteStudent/$1');

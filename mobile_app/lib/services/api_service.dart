@@ -119,6 +119,32 @@ class ApiService {
   }
 
   /**
+   * Fetch Subjects Catalog and Classes
+   */
+  static Future<Map<String, dynamic>> getSubjects() async {
+    try {
+      final url = await getBaseUrl();
+      final headers = await _getHeaders();
+      final response = await http.get(
+        Uri.parse('$url/subjects'),
+        headers: headers,
+      );
+
+      final decoded = jsonDecode(response.body);
+      if (response.statusCode == 200 && decoded['status'] == 'success') {
+        return {
+          'status': 'success',
+          'subjects': decoded['subjects'] ?? [],
+          'classes': decoded['classes'] ?? []
+        };
+      }
+      return {'status': 'error', 'message': decoded['message'] ?? 'تعذر تحميل قائمة المواد الدراسية'};
+    } catch (e) {
+      return {'status': 'error', 'message': 'فشل الاتصال بالخادم لتحميل المواد'};
+    }
+  }
+
+  /**
    * Submit Daily Attendance Records
    */
   static Future<Map<String, dynamic>> saveAttendance(int classId, String date, Map<int, int> records) async {

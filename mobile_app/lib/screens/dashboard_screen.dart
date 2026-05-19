@@ -6,6 +6,7 @@ import 'login_screen.dart';
 import 'students_screen.dart';
 import 'attendance_screen.dart';
 import 'registrations_screen.dart';
+import 'subjects_screen.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({Key? key}) : super(key: key);
@@ -265,10 +266,23 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 'دليل وشؤون الطلاب',
                 'تصفح، ابحث، وتحكم في بيانات الطلاب بكل سهولة.',
                 Icons.supervised_user_circle_rounded,
-                const Color(0xff192a56),
+                const Color(0xff0f172a),
                 () => Navigator.push(
                   context,
                   MaterialPageRoute(builder: (context) => const StudentsScreen()),
+                ),
+              ),
+              const SizedBox(height: 12),
+
+              _buildActionButton(
+                context,
+                'دليل المناهج والمواد',
+                'استعراض المواد والمنهج الدراسي والدرجات المطلوبة للنجاح.',
+                Icons.menu_book_rounded,
+                const Color(0xffc5a021),
+                () => Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const SubjectsScreen()),
                 ),
               ),
               const SizedBox(height: 12),

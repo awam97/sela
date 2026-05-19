@@ -29,7 +29,7 @@ class _LoginScreenState extends State<LoginScreen> {
   String _maskedPhone = '';
   String _maskedEmail = '';
   bool _waEnabled = false;
-  String _selectedMethod = 'whatsapp'; // 'whatsapp' or 'email'
+  String _selectedMethod = 'email'; // 'whatsapp' or 'email'
 
   @override
   void dispose() {

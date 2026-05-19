@@ -958,5 +958,56 @@ class MobileApi extends Controller
 
         return $this->response->setJSON(['status' => 'success', 'message' => 'تم حذف الطالب بنجاح']);
     }
+
+    /**
+     * Searchable Subjects Catalog
+     * GET /api/subjects
+     */
+    public function subjects()
+    {
+        $session = $this->authenticateToken();
+        if (!$session) {
+            return $this->response->setJSON(['status' => 'error', 'message' => 'غير مصرح لك بالوصول'])->setStatusCode(401);
+        }
+
+        $role = $session['role'];
+        $userId = $session['user_id'];
+
+        // Determine school ID
+        if ($role === 'super_admin') {
+            $schoolId = $this->request->getVar('school_id'); // Optionally filter by school
+        } else {
+            $admin = $this->db->table('admin')->where('admin_id', $userId)->get()->getRowArray();
+            $schoolId = $admin['school'];
+        }
+
+        $school = $this->db->table('schools')->where('ID', $schoolId)->get()->getRowArray();
+        $currentYear = $school ? $school['year'] : '2025-2026';
+
+        // Fetch subjects via subject table mapping
+        $builder = $this->db->table('subject sub')
+            ->select('sub.subject_id, sub.name, sub.total_mark, sub.pass_mark, c.name as class_name, c.class_id, t.name as teacher_name')
+            ->join('class c', 'c.class_id = sub.class_id', 'left')
+            ->join('teacher t', 't.teacher_id = sub.teacher_id', 'left');
+
+        if ($schoolId) {
+            $builder->where('sub.school', $schoolId);
+        }
+
+        $subjects = $builder->orderBy('sub.name', 'ASC')->get()->getResultArray();
+
+        // Fetch classes to help mobile categorical listing
+        $classBuilder = $this->db->table('class');
+        if ($schoolId) {
+            $classBuilder->where('school', $schoolId);
+        }
+        $classes = $classBuilder->get()->getResultArray();
+
+        return $this->response->setJSON([
+            'status' => 'success',
+            'classes' => $classes,
+            'subjects' => $subjects
+        ]);
+    }
 }
 
