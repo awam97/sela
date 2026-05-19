@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:mobile_scanner/mobile_scanner.dart';
 import '../services/api_service.dart';
 
 class StudentsQrScannerScreen extends StatefulWidget {
@@ -12,6 +13,7 @@ class StudentsQrScannerScreen extends StatefulWidget {
 class _StudentsQrScannerScreenState extends State<StudentsQrScannerScreen> with SingleTickerProviderStateMixin {
   late AnimationController _animationController;
   final TextEditingController _idController = TextEditingController();
+  final MobileScannerController _scannerController = MobileScannerController();
   bool _isSearching = false;
   String? _scanErrorMessage;
 
@@ -29,6 +31,7 @@ class _StudentsQrScannerScreenState extends State<StudentsQrScannerScreen> with 
   void dispose() {
     _animationController.dispose();
     _idController.dispose();
+    _scannerController.dispose();
     super.dispose();
   }
 
@@ -393,7 +396,7 @@ class _StudentsQrScannerScreenState extends State<StudentsQrScannerScreen> with 
                   width: 280,
                   height: 280,
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: Colors.black,
                     border: Border.all(color: const Color(0xffC5A021), width: 3),
                     borderRadius: BorderRadius.circular(28),
                     boxShadow: const [
@@ -407,18 +410,25 @@ class _StudentsQrScannerScreenState extends State<StudentsQrScannerScreen> with 
                   child: Stack(
                     alignment: Alignment.center,
                     children: [
-                      // Scanner corners style decoration
-                      Positioned(
-                        top: 20,
-                        child: Text(
-                          'جاري محاكاة الكاميرا والمسح التلقائي...',
-                          style: GoogleFonts.cairo(fontSize: 11, color: const Color(0xff64748b), fontWeight: FontWeight.bold),
-                        ),
+                      // Real Camera Mobile Scanner Viewport
+                      MobileScanner(
+                        controller: _scannerController,
+                        onDetect: (capture) {
+                          if (_isSearching) return;
+                          final List<Barcode> barcodes = capture.barcodes;
+                          for (final barcode in barcodes) {
+                            final String? rawValue = barcode.rawValue;
+                            if (rawValue != null && rawValue.isNotEmpty) {
+                              final int? id = int.tryParse(rawValue);
+                              if (id != null) {
+                                _handleIdentifyStudent(id);
+                                break;
+                              }
+                            }
+                          }
+                        },
                       ),
                       
-                      // QR Vector Mock Graphics inside
-                      Icon(Icons.qr_code_scanner_rounded, size: 140, color: const Color(0xff192A56).withOpacity(0.08)),
- 
                       // Pulsating laser animation
                       AnimatedBuilder(
                         animation: _animationController,
@@ -444,12 +454,71 @@ class _StudentsQrScannerScreenState extends State<StudentsQrScannerScreen> with 
                           );
                         },
                       ),
+
+                      // Overlay Instruction
+                      Positioned(
+                        bottom: 12,
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                          decoration: BoxDecoration(
+                            color: Colors.black.withOpacity(0.6),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Text(
+                            'ضع رمز الـ QR بمنتصف المربع',
+                            style: GoogleFonts.cairo(
+                              fontSize: 10,
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      ),
                     ],
                   ),
                 ),
               ),
             ),
-            const SizedBox(height: 28),
+            const SizedBox(height: 16),
+
+            // Premium Camera Controls Row
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                ElevatedButton.icon(
+                  onPressed: () => _scannerController.toggleTorch(),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.white,
+                    foregroundColor: const Color(0xff192A56),
+                    elevation: 0,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      side: const BorderSide(color: Color(0xffe2e8f0)),
+                    ),
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                  ),
+                  icon: const Icon(Icons.flash_on_rounded, size: 18),
+                  label: Text('الفلاش', style: GoogleFonts.cairo(fontSize: 12, fontWeight: FontWeight.bold)),
+                ),
+                const SizedBox(width: 16),
+                ElevatedButton.icon(
+                  onPressed: () => _scannerController.switchCamera(),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.white,
+                    foregroundColor: const Color(0xff192A56),
+                    elevation: 0,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      side: const BorderSide(color: Color(0xffe2e8f0)),
+                    ),
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                  ),
+                  icon: const Icon(Icons.flip_camera_ios_rounded, size: 18),
+                  label: Text('قلب الكاميرا', style: GoogleFonts.cairo(fontSize: 12, fontWeight: FontWeight.bold)),
+                ),
+              ],
+            ),
+            const SizedBox(height: 24),
  
             // Quick Tester Grid for PC/Chrome Browser Previews
             Text(

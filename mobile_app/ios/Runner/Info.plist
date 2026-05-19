@@ -45,5 +45,7 @@
 	<true/>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
+	<key>NSCameraUsageDescription</key>
+	<string>تطلب منصة صلة الإذن للوصول إلى الكاميرا لمسح وقراءة رموز الاستجابة السريعة (QR) الخاصة بهويات الطلاب والتحقق من حضورهم.</string>
 </dict>
 </plist>

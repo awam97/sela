@@ -14,7 +14,7 @@ if %ERRORLEVEL% NEQ 0 (
     color 0C
     echo.
     echo [ERROR] Failed to download sela.ipa!
-    echo Please make sure the GitHub build #11 is finished and your internet is connected.
+    echo Please make sure the GitHub build is finished and your internet is connected.
     echo.
     pause
     exit /b %ERRORLEVEL%
@@ -27,6 +27,5 @@ echo Path: c:\Users\porta\Desktop\Sela\sela.ipa
 echo ====================================================
 echo.
 
-# Highlight in explorer
 explorer.exe /select,"c:\Users\porta\Desktop\Sela\sela.ipa"
 timeout /t 5
