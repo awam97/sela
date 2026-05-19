@@ -5,11 +5,11 @@ echo ====================================================
 echo          SELA MOBILE APP LOCALHOST RUNNER           
 echo ====================================================
 echo Starting Sela Mobile App in Google Chrome...
-echo Please wait, initializing local hot-reload server...
+echo Please wait, launching Chrome with disabled web security (CORS bypass)...
 echo.
 
 cd /d "c:\Users\porta\Desktop\Sela\mobile_app"
-call flutter run -d chrome
+call flutter run -d chrome --web-browser-flag "--disable-web-security"
 
 echo.
 echo ====================================================
