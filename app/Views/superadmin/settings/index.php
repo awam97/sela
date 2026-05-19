@@ -440,7 +440,7 @@
                             foreach($actions as $key => $label): ?>
                             <div class="col-md-6 search-field">
                                 <label class="form-label text-muted small fw-bold"><?= $label ?></label>
-                                <input type="text" name="<?= $key ?>" value="<?= $$key ?? '' ?>" class="form-control border-light bg-light">
+                                <input type="text" name="<?= $key ?>" value="<?= $all_settings[$key] ?? '' ?>" class="form-control border-light bg-light">
                             </div>
                             <?php endforeach; ?>
                         </div>
@@ -456,7 +456,7 @@
                         <div class="row g-4">
                             <div class="col-md-6 search-field">
                                 <label class="form-label text-muted small fw-bold">تسمية دور مدير النظام</label>
-                                <input type="text" name="user_role_sa" value="<?= $user_role_sa ?? '' ?>" class="form-control border-light bg-light">
+                                <input type="text" name="user_role_sa" value="<?= $all_settings['user_role_sa'] ?? '' ?>" class="form-control border-light bg-light">
                             </div>
                         </div>
                     </div>
