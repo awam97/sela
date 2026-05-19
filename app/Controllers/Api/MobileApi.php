@@ -225,14 +225,26 @@ class MobileApi extends Controller
             }
         }
 
-        // 3. Check Teacher Table (using email or phone as username)
-        $teacher = $this->db->table('teacher')
-            ->groupStart()
-                ->where('email', $username)
-                ->orWhere('phone', $username)
-            ->groupEnd()
-            ->get()
-            ->getRowArray();
+        // 3. Check Teacher Table (dynamically schema-aware to prevent missing column exceptions)
+        $teacherFields = $this->db->getFieldNames('teacher');
+        $hasEmail = in_array('email', $teacherFields);
+        $hasPhone = in_array('phone', $teacherFields);
+
+        $teacher = null;
+        if ($hasEmail || $hasPhone) {
+            $teacherBuilder = $this->db->table('teacher')->groupStart();
+            if ($hasEmail) {
+                $teacherBuilder->where('email', $username);
+            }
+            if ($hasPhone) {
+                if ($hasEmail) {
+                    $teacherBuilder->orWhere('phone', $username);
+                } else {
+                    $teacherBuilder->where('phone', $username);
+                }
+            }
+            $teacher = $teacherBuilder->groupEnd()->get()->getRowArray();
+        }
 
         if ($teacher) {
             $authenticated = false;
