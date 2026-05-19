@@ -77,10 +77,15 @@ class MobileApi extends Controller
      */
     public function login()
     {
-        // Bulletproof parsing: Support both raw JSON payloads and standard POST parameters
-        $json = $this->request->getJSON(true);
-        $username = $json['username'] ?? $this->request->getVar('username');
-        $password = $json['password'] ?? $this->request->getVar('password');
+        // Bulletproof native PHP parsing: Support both raw JSON payloads and standard POST parameters without framework exception risks
+        $rawInput = file_get_contents('php://input');
+        $json = json_decode($rawInput, true);
+        if (!is_array($json)) {
+            $json = [];
+        }
+
+        $username = $json['username'] ?? $this->request->getPost('username') ?? $_REQUEST['username'] ?? '';
+        $password = $json['password'] ?? $this->request->getPost('password') ?? $_REQUEST['password'] ?? '';
 
         if (empty($username) || empty($password)) {
             return $this->response->setJSON([
@@ -232,9 +237,13 @@ class MobileApi extends Controller
      */
     public function sendOtp()
     {
-        $json = $this->request->getJSON(true);
-        $tempToken = $json['temp_token'] ?? $this->request->getVar('temp_token');
-        $method = $json['method'] ?? $this->request->getVar('method') ?? 'whatsapp'; // 'whatsapp' or 'email'
+        $rawInput = file_get_contents('php://input');
+        $json = json_decode($rawInput, true);
+        if (!is_array($json)) {
+            $json = [];
+        }
+        $tempToken = $json['temp_token'] ?? $this->request->getPost('temp_token') ?? $_REQUEST['temp_token'] ?? '';
+        $method = $json['method'] ?? $this->request->getPost('method') ?? $_REQUEST['method'] ?? 'whatsapp'; // 'whatsapp' or 'email'
 
         if (empty($tempToken)) {
             return $this->response->setJSON(['status' => 'error', 'message' => 'رمز المعاملة الموقت مفقود'])->setStatusCode(400);
@@ -310,9 +319,13 @@ class MobileApi extends Controller
      */
     public function verifyOtp()
     {
-        $json = $this->request->getJSON(true);
-        $otpToken = $json['otp_token'] ?? $this->request->getVar('otp_token');
-        $code = $json['code'] ?? $this->request->getVar('code');
+        $rawInput = file_get_contents('php://input');
+        $json = json_decode($rawInput, true);
+        if (!is_array($json)) {
+            $json = [];
+        }
+        $otpToken = $json['otp_token'] ?? $this->request->getPost('otp_token') ?? $_REQUEST['otp_token'] ?? '';
+        $code = $json['code'] ?? $this->request->getPost('code') ?? $_REQUEST['code'] ?? '';
 
         if (empty($otpToken) || empty($code)) {
             return $this->response->setJSON(['status' => 'error', 'message' => 'الرمز والتوكن مطلوبان'])->setStatusCode(400);
@@ -610,11 +623,15 @@ class MobileApi extends Controller
             return $this->response->setJSON(['status' => 'error', 'message' => 'غير مصرح لك بالوصول'])->setStatusCode(401);
         }
 
-        $json = $this->request->getJSON(true);
-        $classId = $json['class_id'] ?? $this->request->getVar('class_id');
-        $sectionId = $json['section_id'] ?? $this->request->getVar('section_id') ?? 1;
-        $date = $json['date'] ?? $this->request->getVar('date') ?? date('Y-m-d');
-        $records = $json['records'] ?? $this->request->getVar('records'); // Expected array of [student_id => status_code] (1 = present, 2 = absent, 3 = late)
+        $rawInput = file_get_contents('php://input');
+        $json = json_decode($rawInput, true);
+        if (!is_array($json)) {
+            $json = [];
+        }
+        $classId = $json['class_id'] ?? $this->request->getPost('class_id') ?? $_REQUEST['class_id'] ?? '';
+        $sectionId = $json['section_id'] ?? $this->request->getPost('section_id') ?? $_REQUEST['section_id'] ?? 1;
+        $date = $json['date'] ?? $this->request->getPost('date') ?? $_REQUEST['date'] ?? date('Y-m-d');
+        $records = $json['records'] ?? $this->request->getPost('records') ?? $_REQUEST['records'] ?? [];
 
         if (!$classId || empty($records)) {
             return $this->response->setJSON([
@@ -849,9 +866,13 @@ class MobileApi extends Controller
         $role = $session['role'];
         $userId = $session['user_id'];
 
-        $json = $this->request->getJSON(true);
+        $rawInput = file_get_contents('php://input');
+        $json = json_decode($rawInput, true);
+        if (!is_array($json)) {
+            $json = [];
+        }
         if ($role === 'super_admin') {
-            $schoolId = $json['school_id'] ?? $this->request->getVar('school_id');
+            $schoolId = $json['school_id'] ?? $this->request->getPost('school_id') ?? $_REQUEST['school_id'] ?? '';
         } else {
             $admin = $this->db->table('admin')->where('admin_id', $userId)->get()->getRowArray();
             $schoolId = $admin['school'];
@@ -860,10 +881,10 @@ class MobileApi extends Controller
         $school = $this->db->table('schools')->where('ID', $schoolId)->get()->getRowArray();
         $currentYear = $school ? $school['year'] : '2025-2026';
 
-        $name = $json['name'] ?? $this->request->getVar('name');
-        $phone = $json['phone'] ?? $this->request->getVar('phone');
-        $sex = $json['sex'] ?? $this->request->getVar('sex') ?: 'male';
-        $classId = $json['class_id'] ?? $this->request->getVar('class_id');
+        $name = $json['name'] ?? $this->request->getPost('name') ?? $_REQUEST['name'] ?? '';
+        $phone = $json['phone'] ?? $this->request->getPost('phone') ?? $_REQUEST['phone'] ?? '';
+        $sex = $json['sex'] ?? $this->request->getPost('sex') ?? $_REQUEST['sex'] ?? 'male';
+        $classId = $json['class_id'] ?? $this->request->getPost('class_id') ?? $_REQUEST['class_id'] ?? '';
 
         if (empty($name) || empty($classId)) {
             return $this->response->setJSON(['status' => 'error', 'message' => 'الاسم والصف الدراسي مطلوبان']);
@@ -912,11 +933,15 @@ class MobileApi extends Controller
             return $this->response->setJSON(['status' => 'error', 'message' => 'غير مصرح لك بالوصول'])->setStatusCode(401);
         }
 
-        $json = $this->request->getJSON(true);
-        $name = $json['name'] ?? $this->request->getVar('name');
-        $phone = $json['phone'] ?? $this->request->getVar('phone');
-        $sex = $json['sex'] ?? $this->request->getVar('sex');
-        $classId = $json['class_id'] ?? $this->request->getVar('class_id');
+        $rawInput = file_get_contents('php://input');
+        $json = json_decode($rawInput, true);
+        if (!is_array($json)) {
+            $json = [];
+        }
+        $name = $json['name'] ?? $this->request->getPost('name') ?? $_REQUEST['name'] ?? '';
+        $phone = $json['phone'] ?? $this->request->getPost('phone') ?? $_REQUEST['phone'] ?? '';
+        $sex = $json['sex'] ?? $this->request->getPost('sex') ?? $_REQUEST['sex'] ?? '';
+        $classId = $json['class_id'] ?? $this->request->getPost('class_id') ?? $_REQUEST['class_id'] ?? '';
 
         if (empty($name) || empty($classId)) {
             return $this->response->setJSON(['status' => 'error', 'message' => 'الاسم والصف الدراسي مطلوبان']);
