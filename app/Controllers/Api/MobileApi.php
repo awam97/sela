@@ -90,11 +90,8 @@ class MobileApi extends Controller
         // Fetch system settings to check if OTP is enabled globally
         $settingsRows = $this->db->table('settings')->get()->getResultArray();
         $settings = [];
-        foreach ($settingsRows as $row) {
-            $settings[$row['type']] = $row['description'];
-        }
-        $waSetting = strtolower($settings['whatsapp_otp_enabled'] ?? 'false');
-        $waEnabled = in_array($waSetting, ['true', '1', 'on', 'yes']);
+        $waSetting = strtolower($settings['whatsapp_otp_enabled'] ?? 'true');
+        $waEnabled = true; // Secure OTP verification is always enforced on Sela Mobile App
 
         // 1. Check Super Admin Table
         $super = $this->db->table('super')->where('username', $username)->get()->getRowArray();
