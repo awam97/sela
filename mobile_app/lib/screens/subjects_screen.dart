@@ -153,7 +153,6 @@ class _SubjectsScreenState extends State<SubjectsScreen> {
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(30),
                             ),
-                            borderOnForeground: false,
                             elevation: 0,
                             pressElevation: 0,
                           ),
