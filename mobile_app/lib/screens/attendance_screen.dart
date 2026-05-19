@@ -133,7 +133,14 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('تسجيل الحضور والغياب'),
+        title: Text(
+          'تسجيل الحضور والغياب',
+          style: GoogleFonts.cairo(fontWeight: FontWeight.bold, fontSize: 18, color: Colors.white),
+        ),
+        centerTitle: true,
+        elevation: 0,
+        backgroundColor: const Color(0xff192A56),
+        foregroundColor: Colors.white,
       ),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator(color: Color(0xff192a56)))

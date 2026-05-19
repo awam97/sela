@@ -371,7 +371,14 @@ class _StudentsQrScannerScreenState extends State<StudentsQrScannerScreen> with 
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('مسح معرف الطالب (QR)', style: GoogleFonts.cairo(fontWeight: FontWeight.bold)),
+        title: Text(
+          'مسح معرف الطالب (QR)',
+          style: GoogleFonts.cairo(fontWeight: FontWeight.bold, fontSize: 18, color: Colors.white),
+        ),
+        centerTitle: true,
+        elevation: 0,
+        backgroundColor: const Color(0xff192A56),
+        foregroundColor: Colors.white,
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(24),

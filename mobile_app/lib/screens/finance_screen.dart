@@ -343,12 +343,12 @@ class _FinanceScreenState extends State<FinanceScreen> {
       appBar: AppBar(
         title: Text(
           'الإدارة المالية والفواتير',
-          style: GoogleFonts.cairo(fontWeight: FontWeight.bold, fontSize: 18),
+          style: GoogleFonts.cairo(fontWeight: FontWeight.bold, fontSize: 18, color: Colors.white),
         ),
         centerTitle: true,
         elevation: 0,
-        backgroundColor: Colors.transparent,
-        foregroundColor: primaryColor,
+        backgroundColor: primaryColor,
+        foregroundColor: Colors.white,
       ),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator(color: Color(0xff192A56)))

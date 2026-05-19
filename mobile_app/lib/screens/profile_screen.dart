@@ -158,12 +158,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
       appBar: AppBar(
         title: Text(
           'الملف الشخصي للمسؤول',
-          style: GoogleFonts.cairo(fontWeight: FontWeight.bold, fontSize: 18),
+          style: GoogleFonts.cairo(fontWeight: FontWeight.bold, fontSize: 18, color: Colors.white),
         ),
         centerTitle: true,
         elevation: 0,
-        backgroundColor: Colors.transparent,
-        foregroundColor: primaryColor,
+        backgroundColor: primaryColor,
+        foregroundColor: Colors.white,
       ),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator(color: Color(0xff192A56)))

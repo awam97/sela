@@ -445,7 +445,14 @@ class _StudentsScreenState extends State<StudentsScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('دليل وشؤون الطلاب'),
+        title: Text(
+          'دليل وشؤون الطلاب',
+          style: GoogleFonts.cairo(fontWeight: FontWeight.bold, fontSize: 18, color: Colors.white),
+        ),
+        centerTitle: true,
+        elevation: 0,
+        backgroundColor: const Color(0xff192A56),
+        foregroundColor: Colors.white,
       ),
       body: Column(
         children: [

@@ -69,7 +69,14 @@ class _SubjectsScreenState extends State<SubjectsScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('دليل المناهج والمواد'),
+        title: Text(
+          'دليل المناهج والمواد',
+          style: GoogleFonts.cairo(fontWeight: FontWeight.bold, fontSize: 18, color: Colors.white),
+        ),
+        centerTitle: true,
+        elevation: 0,
+        backgroundColor: const Color(0xff192A56),
+        foregroundColor: Colors.white,
       ),
       body: Column(
         children: [

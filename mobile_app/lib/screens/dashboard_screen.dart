@@ -116,10 +116,17 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(isSuper ? 'منصة صلة - الإدارة العامة' : _schoolName.isNotEmpty ? _schoolName : 'إدارة المدرسة'),
+        title: Text(
+          isSuper ? 'منصة صلة - الإدارة العامة' : _schoolName.isNotEmpty ? _schoolName : 'إدارة المدرسة',
+          style: GoogleFonts.cairo(fontWeight: FontWeight.bold, fontSize: 18, color: Colors.white),
+        ),
+        centerTitle: true,
+        elevation: 0,
+        backgroundColor: const Color(0xff192A56),
+        foregroundColor: Colors.white,
         actions: [
           IconButton(
-            icon: const Icon(Icons.logout_rounded),
+            icon: const Icon(Icons.logout_rounded, color: Colors.white),
             tooltip: 'تسجيل الخروج',
             onPressed: _handleLogout,
           ),
@@ -577,10 +584,17 @@ class _DashboardScreenState extends State<DashboardScreen> {
   Widget _buildStudentDashboard(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('منصة صلة - بوابة الطالب'),
+        title: Text(
+          'منصة صلة - بوابة الطالب',
+          style: GoogleFonts.cairo(fontWeight: FontWeight.bold, fontSize: 18, color: Colors.white),
+        ),
+        centerTitle: true,
+        elevation: 0,
+        backgroundColor: const Color(0xff192A56),
+        foregroundColor: Colors.white,
         actions: [
           IconButton(
-            icon: const Icon(Icons.logout_rounded),
+            icon: const Icon(Icons.logout_rounded, color: Colors.white),
             tooltip: 'تسجيل الخروج',
             onPressed: _handleLogout,
           ),

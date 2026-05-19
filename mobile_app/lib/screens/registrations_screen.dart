@@ -143,7 +143,14 @@ class _RegistrationsScreenState extends State<RegistrationsScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('طلبات الالتحاق الجديدة'),
+        title: Text(
+          'طلبات الالتحاق الجديدة',
+          style: GoogleFonts.cairo(fontWeight: FontWeight.bold, fontSize: 18, color: Colors.white),
+        ),
+        centerTitle: true,
+        elevation: 0,
+        backgroundColor: const Color(0xff192A56),
+        foregroundColor: Colors.white,
       ),
       body: RefreshIndicator(
         onRefresh: _fetchRequests,
