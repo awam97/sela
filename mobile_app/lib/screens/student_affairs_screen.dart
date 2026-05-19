@@ -75,15 +75,15 @@ class StudentAffairsScreen extends StatelessWidget {
       backgroundColor: const Color(0xfff8fafc),
       appBar: AppBar(
         title: Text(
-          'شؤون الطلبة والطلاب',
-          style: GoogleFonts.cairo(fontWeight: FontWeight.bold, fontSize: 18),
+          'شؤون الطلبة والقبول',
+          style: GoogleFonts.cairo(fontWeight: FontWeight.bold, fontSize: 18, color: Colors.white),
         ),
         centerTitle: true,
         elevation: 0,
-        backgroundColor: Colors.transparent,
-        foregroundColor: primaryColor,
+        backgroundColor: primaryColor,
+        foregroundColor: Colors.white,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_rounded),
+          icon: const Icon(Icons.arrow_back_ios_rounded, color: Colors.white),
           onPressed: () {
             if (onBack != null) onBack!();
             Navigator.pop(context);
