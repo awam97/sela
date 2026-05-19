@@ -1,69 +1,90 @@
-# CodeIgniter 4 Application Starter
+# 🌟 منصة صلة لإدارة المدارس والجمعيات | Sela Management Platform
 
-## What is CodeIgniter?
+<p align="center">
+  <img src="public/uploads/logo.png" alt="Sela Logo" width="180"/>
+</p>
 
-CodeIgniter is a PHP full-stack web framework that is light, fast, flexible and secure.
-More information can be found at the [official site](https://codeigniter.com).
+---
 
-This repository holds a composer-installable app starter.
-It has been built from the
-[development repository](https://github.com/codeigniter4/CodeIgniter4).
+**منصة صلة (`Sela`)** هي نظام إداري متكامل وممتاز مصمم خصيصاً لإدارة المدارس، المؤسسات التعليمية، والجمعيات الخيرية. يجمع النظام بين لوحة تحكم سحابية قوية وتطبيق هاتف محمول فخم متعدد الأدوار (للإداريين، المعلمين، والطلاب) بواجهات عربية عصرية وذكية.
 
-More information about the plans for version 4 can be found in [CodeIgniter 4](https://forum.codeigniter.com/forumdisplay.php?fid=28) on the forums.
+**Sela Platform** is an enterprise-grade, high-performance School & NGO Management System. The platform unifies a powerful, secure cloud web-portal with a premium, light-themed multi-role Flutter mobile client designed for administrators, teachers, and students.
 
-You can read the [user guide](https://codeigniter.com/user_guide/)
-corresponding to the latest version of the framework.
+---
 
-## Installation & updates
+## 🛠️ مكونات النظام الأساسية / System Architecture
 
-`composer create-project codeigniter4/appstarter` then `composer update` whenever
-there is a new release of the framework.
+### 1. البوابة السحابية ولوحة التحكم (Web Backend & Admin Portal)
+* **التقنيات المستخدمة:** `CodeIgniter 4` (PHP 8.2+), `MySQL`, `Vanilla CSS` لتوفير أداء سريع للغاية وحماية فائقة.
+* **أبرز الميزات:**
+  * **إدارة النظام العام (Super Admin):** إعداد المدارس، المدن، مدراء المدارس، وإعدادات النظام الأساسية مع تفعيل/تعطيل التحقق الثنائي (OTP) عبر واتساب.
+  * **إدارة المدرسة (School Admin):** التحكم في الفصول الدراسية، تسجيل وقبول الطلاب الجدد، توزيع المواد، الفواتير المالية، وإصدار بطاقات الدخول الرقمية والهويات المربوطة برموز الاستجابة السريعة (QR).
 
-When updating, check the release notes to see if there are any changes you might need to apply
-to your `app` folder. The affected files can be copied or merged from
-`vendor/codeigniter4/framework/app`.
+### 2. تطبيق الهاتف المحمول الفخم (Multi-Role Flutter App)
+* **التقنيات المستخدمة:** `Flutter`, `Dart`, `Google Fonts (Cairo)`.
+* **أبرز الميزات للواجهة والأدوار:**
+  * **واجهات مستخدم مذهلة (Premium Light Theme):** واجهات عصرية باللون الكحلي والذهبي الفاخر مع حواف دائرية ناعمة وظلال دقيقة ومحاذاة مثالية.
+  * **شؤون الطلبة والقبول (Student Affairs Hub):** شبكة خدمات متكاملة ومستطيلة منخفضة الارتفاع لسهولة التصفح.
+  * **تسجيل الحضور والغياب (RTL QR Scanner & Register):** قارئ ذكي للرموز لمسح وتسجيل الحضور الفوري للطلاب بالفصول.
+  * **رصد درجات المناهج (Subject Marks Entry):** شاشات إدخال متطورة تتيح للمعلمين رصد مكونات الدرجات وحساب المجموع تلقائياً مع التحقق من الحدود القصوى.
+  * **إدارة صور الطلاب (Student Photo Center):** التقاط وتحديث الصور الشخصية مباشرة عبر الكاميرا ورفعها للسيرفر بضغطة زر.
+  * **الإدارة المالية والفواتير (Financial Dashboard):** فواتير الطلاب، حالة الدفع (مدفوع، معلق، غير مدفوع)، مع طباعة الفواتير مباشرة وحفظها كملفات PDF.
 
-## Setup
+### 3. خطوط البناء المؤتمتة (CI/CD DevOps Pipeline)
+* **GitHub Actions (`build.yml`):** مؤتمت بالكامل ليقوم ببناء تطبيق الأندرويد (`Android APK`) وتطبيق الآيفون (`iOS Native App`) مع كل عملية دفع كود (`push`) على فرع `main` وتحديث الإصدارات تلقائياً.
 
-Copy `env` to `.env` and tailor for your app, specifically the baseURL
-and any database settings.
+---
 
-## Important Change with index.php
+## 🚀 دليل الإعداد السريع / Quick Start Guide
 
-`index.php` is no longer in the root of the project! It has been moved inside the *public* folder,
-for better security and separation of components.
+### إعداد البوابة الخلفية (Web & API Setup)
+1. قم بمتطلبات الخادم: تأكد من تثبيت `PHP 8.2` على الأقل مع تفعيل ملحقات `intl` و `mbstring` و `mysqlnd`.
+2. انسخ ملف الإعدادات البيئية:
+   ```bash
+   cp env .env
+   ```
+3. قم بتهيئة قاعدة البيانات ورمز الرابط الأساسي (`baseURL`) بداخل ملف `.env`.
+4. لتشغيل السيرفر المحلي:
+   ```bash
+   php spark serve
+   ```
 
-This means that you should configure your web server to "point" to your project's *public* folder, and
-not to the project root. A better practice would be to configure a virtual host to point there. A poor practice would be to point your web server to the project root and expect to enter *public/...*, as the rest of your logic and the
-framework are exposed.
+### إعداد تطبيق الهاتف (Flutter Mobile Setup)
+1. انتقل لمجلد تطبيق الهاتف:
+   ```bash
+   cd mobile_app
+   ```
+2. قم بتحميل الملحقات والتأكد من مطابقة الإصدارات:
+   ```bash
+   flutter pub get
+   ```
+3. لتشغيل التطبيق على المحاكي أو جهازك الحقيقي:
+   ```bash
+   flutter run
+   ```
 
-**Please** read the user guide for a better explanation of how CI4 works!
+---
 
-## Repository Management
+## 📦 بناء وتجميع تطبيقات الهاتف (Build & Release Guides)
 
-We use GitHub issues, in our main repository, to track **BUGS** and to track approved **DEVELOPMENT** work packages.
-We use our [forum](http://forum.codeigniter.com) to provide SUPPORT and to discuss
-FEATURE REQUESTS.
+### أندرويد (Android)
+لبناء ملف التثبيت المباشر للأندرويد:
+```bash
+cd mobile_app
+flutter build apk --debug
+```
 
-This repository is a "distribution" one, built by our release preparation script.
-Problems with it can be raised on our forum, or as issues in the main repository.
+### آيفون (iOS / IPA Generation)
+تم توفير أدوات أتمتة ممتازة لتوليد حزمة التثبيت لجهاز الآيفون (`sela.ipa`) لتثبيتها مباشرة عبر **Sideloadly** أو **AltStore**:
 
-## Server Requirements
+1. **التحميل التلقائي للأحدث (Download_Sela_IPA.bat):**
+   انقر نقراً مزدوجاً على هذا الملف ليقوم بسحب وتحميل أحدث بناء آيفون ناجح ومستقر من السيرفر مباشرة.
+2. **سكربت التجميع المحلي (pack_ios_app.ps1):**
+   يقوم بفك ضغط ملف البناء المستخرج من GitHub Actions وتجهيز هيكلية المجلد (`Payload/Runner.app`) وضغطه تلقائياً بصيغة `.ipa` جاهزة للتثبيت فوراً.
 
-PHP version 8.2 or higher is required, with the following extensions installed:
+---
 
-- [intl](http://php.net/manual/en/intl.requirements.php)
-- [mbstring](http://php.net/manual/en/mbstring.installation.php)
+## 📄 الترخيص وحقوق الملكية / License & Copyright
+جميع الحقوق محفوظة لمنصة **صلة** لإدارة المدارس والجمعيات © 2026.
 
-> [!WARNING]
-> - The end of life date for PHP 7.4 was November 28, 2022.
-> - The end of life date for PHP 8.0 was November 26, 2023.
-> - The end of life date for PHP 8.1 was December 31, 2025.
-> - If you are still using below PHP 8.2, you should upgrade immediately.
-> - The end of life date for PHP 8.2 will be December 31, 2026.
-
-Additionally, make sure that the following extensions are enabled in your PHP:
-
-- json (enabled by default - don't turn it off)
-- [mysqlnd](http://php.net/manual/en/mysqlnd.install.php) if you plan to use MySQL
-- [libcurl](http://php.net/manual/en/curl.requirements.php) if you plan to use the HTTP\CURLRequest library
+All rights reserved to **Sela School & NGO Management Platform** © 2026.
