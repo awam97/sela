@@ -198,6 +198,7 @@ class Settings extends BaseController
             }
         }
 
+        $data['all_settings'] = $data;
         return view('superadmin/settings/index', $data);
     }
 

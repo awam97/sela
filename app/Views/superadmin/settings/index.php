@@ -307,7 +307,7 @@
                                         foreach($all_menus as $key => $label): ?>
                                         <div class="col-md-6 border-bottom border-end p-3 search-field">
                                             <label class="small fw-bold d-block mb-1"><?= $label ?></label>
-                                            <input type="text" name="<?= $key ?>" value="<?= $$key ?? '' ?>" class="form-control form-control-sm border-0 bg-light">
+                                            <input type="text" name="<?= $key ?>" value="<?= $all_settings[$key] ?? '' ?>" class="form-control form-control-sm border-0 bg-light">
                                         </div>
                                         <?php endforeach; ?>
                                     </div>
@@ -333,7 +333,7 @@
                                         foreach($mobile_views as $key => $label): ?>
                                         <div class="col-md-6 border-bottom border-end p-3 search-field">
                                             <label class="small fw-bold d-block mb-1"><?= $label ?></label>
-                                            <input type="text" name="<?= $key ?>" value="<?= $$key ?? '' ?>" class="form-control form-control-sm border-0 bg-light">
+                                            <input type="text" name="<?= $key ?>" value="<?= $all_settings[$key] ?? '' ?>" class="form-control form-control-sm border-0 bg-light">
                                         </div>
                                         <?php endforeach; ?>
                                     </div>
@@ -355,7 +355,7 @@
                                         foreach($mobile_descs as $key => $label): ?>
                                         <div class="col-md-6 border-bottom border-end p-3 search-field">
                                             <label class="small fw-bold d-block mb-1"><?= $label ?></label>
-                                            <input type="text" name="<?= $key ?>" value="<?= $$key ?? '' ?>" class="form-control form-control-sm border-0 bg-light">
+                                            <input type="text" name="<?= $key ?>" value="<?= $all_settings[$key] ?? '' ?>" class="form-control form-control-sm border-0 bg-light">
                                         </div>
                                         <?php endforeach; ?>
                                     </div>
@@ -379,7 +379,7 @@
                                         foreach($mobile_login_dash as $key => $label): ?>
                                         <div class="col-md-6 border-bottom border-end p-3 search-field">
                                             <label class="small fw-bold d-block mb-1"><?= $label ?></label>
-                                            <input type="text" name="<?= $key ?>" value="<?= $$key ?? '' ?>" class="form-control form-control-sm border-0 bg-light">
+                                            <input type="text" name="<?= $key ?>" value="<?= $all_settings[$key] ?? '' ?>" class="form-control form-control-sm border-0 bg-light">
                                         </div>
                                         <?php endforeach; ?>
                                     </div>
@@ -411,7 +411,7 @@
                                         foreach($mobile_labels as $key => $label): ?>
                                         <div class="col-md-6 border-bottom border-end p-3 search-field">
                                             <label class="small fw-bold d-block mb-1"><?= $label ?></label>
-                                            <input type="text" name="<?= $key ?>" value="<?= $$key ?? '' ?>" class="form-control form-control-sm border-0 bg-light">
+                                            <input type="text" name="<?= $key ?>" value="<?= $all_settings[$key] ?? '' ?>" class="form-control form-control-sm border-0 bg-light">
                                         </div>
                                         <?php endforeach; ?>
                                     </div>
