@@ -1230,12 +1230,23 @@ class MobileApi extends Controller
         }
 
         // Fetch recent attendance statistics
-        $attendance = $this->db->table('attendance')
+        $attendanceRaw = $this->db->table('attendance')
             ->where('student_id', $studentId)
-            ->orderBy('date', 'DESC')
+            ->orderBy('timestamp', 'DESC')
             ->limit(10)
             ->get()
             ->getResultArray();
+
+        $attendance = [];
+        foreach ($attendanceRaw as $row) {
+            $attendance[] = [
+                'attendance_id' => $row['attendance_id'],
+                'student_id' => $row['student_id'],
+                'status' => $row['status'],
+                'date' => date('Y-m-d', $row['timestamp'] ? (int)$row['timestamp'] : time()),
+                'notes' => $row['notes'] ?? ''
+            ];
+        }
 
         return $this->response->setJSON([
             'status' => 'success',

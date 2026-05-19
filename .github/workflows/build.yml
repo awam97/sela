@@ -80,7 +80,6 @@ jobs:
   deploy-backend:
     name: Sync Webapp to Live Server
     runs-on: ubuntu-latest
-    needs: [build-android, build-ios]
     if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
     steps:
       - name: Checkout Code
@@ -111,15 +110,9 @@ jobs:
   publish-release:
     name: Publish Public GitHub Release
     runs-on: ubuntu-latest
-    needs: [build-android, build-ios]
+    needs: [build-ios]
     if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
     steps:
-      - name: Download Android APK
-        uses: actions/download-artifact@v4
-        with:
-          name: sela-android-debug-apk
-          path: ./
-
       - name: Download iOS App
         uses: actions/download-artifact@v4
         with:
@@ -138,7 +131,6 @@ jobs:
           tag_name: latest
           target_commitish: ${{ github.sha }}
           files: |
-            app-release.apk
             sela.ipa
           draft: false
           prerelease: false
