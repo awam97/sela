@@ -51,4 +51,22 @@ class AppTitles {
   static String get dashWelcomeAdmin => get('dash_welcome_admin', 'أهلاً بك مجدداً في إدارة المدرسة');
   static String get dashWelcomeTeacher => get('dash_welcome_teacher', 'معلمنا الفاضل، أهلاً بك في البوابة');
   static String get dashSectionTitle => get('dash_section_title', 'لوحة التحكم والإدارة');
+
+  // ==================== COMMON LABELS & BUTTONS ====================
+  static String get lblSaveAttendance => get('lbl_save_attendance', 'حفظ الحضور والغياب');
+  static String get lblSelectClass => get('lbl_select_class', 'اختر الفصل الدراسي');
+  static String get lblPresent => get('lbl_present', 'حاضر');
+  static String get lblAbsent => get('lbl_absent', 'غائب');
+  static String get lblLate => get('lbl_late', 'تأخر');
+  static String get lblExcused => get('lbl_excused', 'إجازة');
+  static String get lblTotalPaid => get('lbl_total_paid', 'إجمالي المدفوعات');
+  static String get lblRemainingBalance => get('lbl_remaining_balance', 'المستحقات المتبقية');
+  static String get lblInvoices => get('lbl_invoices', 'الفواتير');
+  static String get lblLogout => get('lbl_logout', 'تسجيل الخروج');
+  static String get lblChangePassword => get('lbl_change_password', 'تغيير كلمة المرور');
+  static String get lblQrInstruction => get('lbl_qr_instruction', 'وجه الكاميرا نحو الرمز للتحقق الفوري');
+  static String get lblSearchStudent => get('lbl_search_student', 'بحث باسم الطالب أو رقم القيد...');
+  static String get lblSaveMarks => get('lbl_save_marks', 'حفظ ورصد الدرجات');
+  static String get lblSelectExamCategory => get('lbl_select_exam_category', 'اختر فئة التقييم (أعمال سنة / امتحانات)');
+  static String get lblSuccessSave => get('lbl_success_save', 'تم حفظ البيانات بنجاح');
 }

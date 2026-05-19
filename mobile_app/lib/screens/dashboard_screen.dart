@@ -81,7 +81,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text('تسجيل الخروج', style: GoogleFonts.cairo(fontWeight: FontWeight.bold)),
+        title: Text(AppTitles.lblLogout, style: GoogleFonts.cairo(fontWeight: FontWeight.bold)),
         content: Text('هل أنت متأكد من رغبتك في تسجيل الخروج من النظام؟', style: GoogleFonts.cairo()),
         actions: [
           TextButton(
@@ -128,7 +128,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
         actions: [
           IconButton(
             icon: const Icon(Icons.logout_rounded, color: Colors.white),
-            tooltip: 'تسجيل الخروج',
+            tooltip: AppTitles.lblLogout,
             onPressed: _handleLogout,
           ),
         ],

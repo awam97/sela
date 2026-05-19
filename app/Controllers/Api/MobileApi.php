@@ -107,6 +107,22 @@ class MobileApi extends Controller
             'dash_welcome_admin' => !empty(trim($settings['dash_welcome_admin'] ?? '')) ? $settings['dash_welcome_admin'] : 'أهلاً بك مجدداً في إدارة المدرسة',
             'dash_welcome_teacher' => !empty(trim($settings['dash_welcome_teacher'] ?? '')) ? $settings['dash_welcome_teacher'] : 'معلمنا الفاضل، أهلاً بك في البوابة',
             'dash_section_title' => !empty(trim($settings['dash_section_title'] ?? '')) ? $settings['dash_section_title'] : 'لوحة التحكم والإدارة',
+            'lbl_save_attendance' => !empty(trim($settings['lbl_save_attendance'] ?? '')) ? $settings['lbl_save_attendance'] : 'حفظ الحضور والغياب',
+            'lbl_select_class' => !empty(trim($settings['lbl_select_class'] ?? '')) ? $settings['lbl_select_class'] : 'اختر الفصل الدراسي',
+            'lbl_present' => !empty(trim($settings['lbl_present'] ?? '')) ? $settings['lbl_present'] : 'حاضر',
+            'lbl_absent' => !empty(trim($settings['lbl_absent'] ?? '')) ? $settings['lbl_absent'] : 'غائب',
+            'lbl_late' => !empty(trim($settings['lbl_late'] ?? '')) ? $settings['lbl_late'] : 'تأخر',
+            'lbl_excused' => !empty(trim($settings['lbl_excused'] ?? '')) ? $settings['lbl_excused'] : 'إجازة',
+            'lbl_total_paid' => !empty(trim($settings['lbl_total_paid'] ?? '')) ? $settings['lbl_total_paid'] : 'إجمالي المدفوعات',
+            'lbl_remaining_balance' => !empty(trim($settings['lbl_remaining_balance'] ?? '')) ? $settings['lbl_remaining_balance'] : 'المستحقات المتبقية',
+            'lbl_invoices' => !empty(trim($settings['lbl_invoices'] ?? '')) ? $settings['lbl_invoices'] : 'الفواتير',
+            'lbl_logout' => !empty(trim($settings['lbl_logout'] ?? '')) ? $settings['lbl_logout'] : 'تسجيل الخروج',
+            'lbl_change_password' => !empty(trim($settings['lbl_change_password'] ?? '')) ? $settings['lbl_change_password'] : 'تغيير كلمة المرور',
+            'lbl_qr_instruction' => !empty(trim($settings['lbl_qr_instruction'] ?? '')) ? $settings['lbl_qr_instruction'] : 'وجه الكاميرا نحو الرمز للتحقق الفوري',
+            'lbl_search_student' => !empty(trim($settings['lbl_search_student'] ?? '')) ? $settings['lbl_search_student'] : 'بحث باسم الطالب أو رقم القيد...',
+            'lbl_save_marks' => !empty(trim($settings['lbl_save_marks'] ?? '')) ? $settings['lbl_save_marks'] : 'حفظ ورصد الدرجات',
+            'lbl_select_exam_category' => !empty(trim($settings['lbl_select_exam_category'] ?? '')) ? $settings['lbl_select_exam_category'] : 'اختر فئة التقييم (أعمال سنة / امتحانات)',
+            'lbl_success_save' => !empty(trim($settings['lbl_success_save'] ?? '')) ? $settings['lbl_success_save'] : 'تم حفظ البيانات بنجاح',
         ];
     }
 

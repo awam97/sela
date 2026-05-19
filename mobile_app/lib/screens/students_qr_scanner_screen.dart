@@ -467,7 +467,7 @@ class _StudentsQrScannerScreenState extends State<StudentsQrScannerScreen> with 
                             borderRadius: BorderRadius.circular(12),
                           ),
                           child: Text(
-                            'ضع رمز الـ QR بمنتصف المربع',
+                            AppTitles.lblQrInstruction,
                             style: GoogleFonts.cairo(
                               fontSize: 10,
                               color: Colors.white,

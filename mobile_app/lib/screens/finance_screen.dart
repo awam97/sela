@@ -420,7 +420,7 @@ class _FinanceScreenState extends State<FinanceScreen> {
                               Container(height: 40, width: 1, color: const Color(0xffe2e8f0)),
                               Expanded(
                                 child: _buildSummaryItem(
-                                  'إجمالي المدفوع',
+                                  AppTitles.lblTotalPaid,
                                   _totalPaid,
                                   const Color(0xff16a34a),
                                 ),
@@ -428,7 +428,7 @@ class _FinanceScreenState extends State<FinanceScreen> {
                               Container(height: 40, width: 1, color: const Color(0xffe2e8f0)),
                               Expanded(
                                 child: _buildSummaryItem(
-                                  'إجمالي المتبقي',
+                                  AppTitles.lblRemainingBalance,
                                   _totalDue,
                                   const Color(0xffdc2626),
                                 ),
@@ -445,7 +445,7 @@ class _FinanceScreenState extends State<FinanceScreen> {
                       textAlign: TextAlign.right,
                       style: GoogleFonts.cairo(fontSize: 14, fontWeight: FontWeight.bold, color: primaryColor),
                       decoration: InputDecoration(
-                        hintText: 'ابحث باسم الطالب أو عنوان الفاتورة...',
+                        hintText: AppTitles.lblSearchStudent,
                         hintStyle: GoogleFonts.cairo(fontSize: 13, color: const Color(0xff94a3b8)),
                         prefixIcon: const Icon(Icons.search_rounded, color: Color(0xff94a3b8)),
                         suffixIcon: _searchController.text.isNotEmpty

@@ -385,6 +385,38 @@
                                     </div>
                                 </td>
                             </tr>
+                            <tr class="table-section-header bg-light/50"><td colspan="2" class="ps-4 py-2 fw-bold text-nile small">تسميات أزرار ونصوص وتنبيهات تطبيق الهاتف (Mobile App Action Phrases & Labels)</td></tr>
+                            <tr class="search-row">
+                                <td colspan="2" class="p-0">
+                                    <div class="row g-0">
+                                        <?php 
+                                        $mobile_labels = [
+                                            'lbl_save_attendance' => 'الحضور: زر حفظ الحضور والغياب',
+                                            'lbl_select_class' => 'الحضور: تلميح اختيار الفصل الدراسي',
+                                            'lbl_present' => 'الحضور: تسمية حالة (حاضر)',
+                                            'lbl_absent' => 'الحضور: تسمية حالة (غائب)',
+                                            'lbl_late' => 'الحضور: تسمية حالة (متأخر)',
+                                            'lbl_excused' => 'الحضور: تسمية حالة (إجازة/عذر)',
+                                            'lbl_total_paid' => 'المالية: تسمية (إجمالي المدفوعات)',
+                                            'lbl_remaining_balance' => 'المالية: تسمية (المستحقات المتبقية)',
+                                            'lbl_invoices' => 'المالية: عنوان تبويب (الفواتير)',
+                                            'lbl_logout' => 'الملف الشخصي: زر تسجيل الخروج',
+                                            'lbl_change_password' => 'الملف الشخصي: زر تغيير كلمة المرور',
+                                            'lbl_qr_instruction' => 'الكاميرا: إرشادات مسح الـ QR',
+                                            'lbl_search_student' => 'الطلاب: تلميح حقل البحث عن الطلاب',
+                                            'lbl_save_marks' => 'الدرجات: زر حفظ ورصد الدرجات',
+                                            'lbl_select_exam_category' => 'الدرجات: تلميح اختيار فئة التقييم',
+                                            'lbl_success_save' => 'تنبيه: رسالة النجاح عند الحفظ'
+                                        ];
+                                        foreach($mobile_labels as $key => $label): ?>
+                                        <div class="col-md-6 border-bottom border-end p-3 search-field">
+                                            <label class="small fw-bold d-block mb-1"><?= $label ?></label>
+                                            <input type="text" name="<?= $key ?>" value="<?= $$key ?? '' ?>" class="form-control form-control-sm border-0 bg-light">
+                                        </div>
+                                        <?php endforeach; ?>
+                                    </div>
+                                </td>
+                            </tr>
                         </tbody>
                     </table>
                 </div>

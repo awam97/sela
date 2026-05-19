@@ -98,7 +98,7 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
-              'تم حفظ كشف الحضور والغياب اليومي بنجاح!',
+              AppTitles.lblSuccessSave,
               style: GoogleFonts.cairo(fontWeight: FontWeight.bold),
               textAlign: TextAlign.center,
             ),
@@ -160,7 +160,7 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              'الفصل الدراسي',
+                              AppTitles.lblSelectClass,
                               style: GoogleFonts.cairo(fontSize: 12, color: const Color(0xff64748b), fontWeight: FontWeight.bold),
                             ),
                             const SizedBox(height: 4),
@@ -298,11 +298,11 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
                                         // Three-State Selector row
                                         Row(
                                           children: [
-                                            _buildStateButton(studentId, 1, 'حاضر', const Color(0xff16a34a), status == 1),
+                                            _buildStateButton(studentId, 1, AppTitles.lblPresent, const Color(0xff16a34a), status == 1),
                                             const SizedBox(width: 6),
-                                            _buildStateButton(studentId, 2, 'غائب', const Color(0xffdc2626), status == 2),
+                                            _buildStateButton(studentId, 2, AppTitles.lblAbsent, const Color(0xffdc2626), status == 2),
                                             const SizedBox(width: 6),
-                                            _buildStateButton(studentId, 3, 'متأخر', const Color(0xffd97706), status == 3),
+                                            _buildStateButton(studentId, 3, AppTitles.lblLate, const Color(0xffd97706), status == 3),
                                           ],
                                         ),
                                       ],
@@ -342,7 +342,7 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
                         child: CircularProgressIndicator(color: Colors.white, strokeWidth: 3),
                       )
                     : Text(
-                        'حفظ سجل الحضور والغياب',
+                        AppTitles.lblSaveAttendance,
                         style: GoogleFonts.cairo(fontWeight: FontWeight.bold),
                       ),
               ),

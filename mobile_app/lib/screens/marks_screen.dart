@@ -289,7 +289,7 @@ class _MarksScreenState extends State<MarksScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            res['message'] ?? 'تم رصد وحفظ الدرجات بنجاح',
+            AppTitles.lblSuccessSave,
             style: GoogleFonts.cairo(color: Colors.white, fontWeight: FontWeight.bold),
             textAlign: TextAlign.right,
           ),
@@ -683,7 +683,7 @@ class _MarksScreenState extends State<MarksScreen> {
                         )
                       : const Icon(Icons.save_rounded, color: Colors.white),
                   label: Text(
-                    _saving ? 'جاري الحفظ...' : 'حفظ ورصد درجات الطلاب',
+                    _saving ? 'جاري الحفظ...' : AppTitles.lblSaveMarks,
                     style: GoogleFonts.cairo(fontSize: 16, fontWeight: FontWeight.bold),
                   ),
                   style: ElevatedButton.styleFrom(

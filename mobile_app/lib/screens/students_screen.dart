@@ -312,7 +312,7 @@ class _StudentsScreenState extends State<StudentsScreen> {
                                   SnackBar(
                                     backgroundColor: Colors.green.shade700,
                                     content: Text(
-                                      response['message'] ?? 'تم حفظ البيانات بنجاح!',
+                                      AppTitles.lblSuccessSave,
                                       style: GoogleFonts.cairo(fontWeight: FontWeight.bold),
                                       textAlign: TextAlign.right,
                                     ),
@@ -470,7 +470,7 @@ class _StudentsScreenState extends State<StudentsScreen> {
                 });
               },
               decoration: InputDecoration(
-                hintText: 'ابحث عن اسم الطالب أو رقم الهاتف...',
+                hintText: AppTitles.lblSearchStudent,
                 hintStyle: GoogleFonts.cairo(color: const Color(0xff94a3b8), fontSize: 13),
                 prefixIcon: const Icon(Icons.search_rounded, color: Color(0xff192a56)),
                 filled: true,

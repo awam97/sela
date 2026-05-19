@@ -320,7 +320,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 4),
                         child: Text(
-                          'تغيير كلمة المرور (اختياري)',
+                          AppTitles.lblChangePassword,
                           style: GoogleFonts.cairo(
                             fontSize: 15,
                             fontWeight: FontWeight.bold,
