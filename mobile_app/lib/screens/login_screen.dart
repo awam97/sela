@@ -59,15 +59,6 @@ class _LoginScreenState extends State<LoginScreen> {
       });
 
       if (result['status'] == 'success') {
-        final role = result['user']['role'];
-        if (role == 'super_admin') {
-          setState(() {
-            _errorMessage = 'مدير النظام العام غير مصرح له بالدخول لتطبيق الهاتف المحمول';
-          });
-          ApiService.logout();
-          return;
-        }
-
         // Direct successful login (OTP disabled/bypassed)
         Navigator.of(context).pushReplacement(
           MaterialPageRoute(builder: (context) => const DashboardScreen()),
@@ -142,15 +133,6 @@ class _LoginScreenState extends State<LoginScreen> {
       });
 
       if (result['status'] == 'success') {
-        final role = result['user']['role'];
-        if (role == 'super_admin') {
-          setState(() {
-            _errorMessage = 'مدير النظام العام غير مصرح له بالدخول لتطبيق الهاتف المحمول';
-            _currentStep = LoginStep.credentials;
-          });
-          ApiService.logout();
-          return;
-        }
         Navigator.of(context).pushReplacement(
           MaterialPageRoute(builder: (context) => const DashboardScreen()),
         );

@@ -158,13 +158,66 @@ class MobileApi extends Controller
         $waSetting = strtolower($settings['whatsapp_otp_enabled'] ?? 'true');
         $waEnabled = in_array($waSetting, ['true', '1', 'on', 'yes']);
 
-        // 1. Check Super Admin Table (Strictly block super_admin from accessing mobile app)
+        // 1. Check Super Admin Table
         $super = $this->db->table('super')->where('username', $username)->get()->getRowArray();
         if ($super) {
-            return $this->response->setJSON([
-                'status' => 'error',
-                'message' => 'غير مصرح لمدير المنصة العام باستخدام تطبيق الهاتف المحمول.'
-            ])->setStatusCode(403);
+            $authenticated = false;
+            $needUpgrade = false;
+
+            if (password_verify($password, $super['password'])) {
+                $authenticated = true;
+            } elseif ($password === $super['password']) {
+                $authenticated = true;
+                $needUpgrade = true;
+            }
+
+            if ($authenticated) {
+                if ($needUpgrade) {
+                    $newHash = password_hash($password, PASSWORD_DEFAULT);
+                    $this->db->table('super')->where('super_id', $super['super_id'])->update(['password' => $newHash]);
+                }
+
+                // If OTP is enabled globally, start dynamic verification flow
+                if ($waEnabled) {
+                    $phone = $super['phone'] ?? '';
+                    $email = $super['email'] ?? '';
+                    
+                    $maskedPhone = empty($phone) ? '' : substr($phone, 0, 4) . '****' . substr($phone, -4);
+                    $maskedEmail = empty($email) ? '' : substr($email, 0, 3) . '****' . substr($email, strpos($email, '@') - 2);
+
+                    // Generate secure transient token (valid for 5 minutes)
+                    $tempPayload = json_encode([
+                        'user_id' => (int)$super['super_id'],
+                        'role' => 'super_admin',
+                        'expiry' => time() + 300
+                    ]);
+                    $tempSignature = hash_hmac('sha256', $tempPayload, $this->tokenSecret);
+                    $tempToken = base64_encode($tempPayload) . '.' . $tempSignature;
+
+                    return $this->response->setJSON([
+                        'status' => 'otp_required',
+                        'temp_token' => $tempToken,
+                        'phone' => $maskedPhone,
+                        'email' => $maskedEmail,
+                        'wa_enabled' => true
+                    ]);
+                }
+
+                $token = $super['super_id'] . ':super_admin:' . hash_hmac('sha256', $super['super_id'] . ':super_admin', $this->tokenSecret);
+
+                return $this->response->setJSON([
+                    'status' => 'success',
+                    'token' => $token,
+                    'user' => [
+                        'id' => (int)$super['super_id'],
+                        'username' => $super['username'],
+                        'role' => 'super_admin',
+                        'name' => $super['name'] ?? 'المدير العام للمنصة',
+                        'school_id' => null,
+                        'school_name' => null
+                    ]
+                ]);
+            }
         }
 
         // 2. Check Standard Admin Table
@@ -1341,7 +1394,24 @@ class MobileApi extends Controller
         $userId = $session['user_id'];
         $role = $session['role'];
 
-        if ($role === 'teacher') {
+        if ($role === 'super_admin') {
+            $user = $this->db->table('super')->where('super_id', $userId)->get()->getRowArray();
+            if (!$user) {
+                return $this->response->setJSON(['status' => 'error', 'message' => 'المستخدم غير موجود'])->setStatusCode(404);
+            }
+            return $this->response->setJSON([
+                'status' => 'success',
+                'user' => [
+                    'id' => (int)$user['super_id'],
+                    'name' => $user['name'] ?? '',
+                    'username' => $user['username'] ?? '',
+                    'email' => $user['email'] ?? '',
+                    'phone' => $user['phone'] ?? '',
+                    'role' => 'super_admin',
+                    'school_name' => 'الإدارة العامة لمنصة صلة'
+                ]
+            ]);
+        } else if ($role === 'teacher') {
             $user = $this->db->table('teacher')->where('teacher_id', $userId)->get()->getRowArray();
             if (!$user) {
                 return $this->response->setJSON(['status' => 'error', 'message' => 'المستخدم غير موجود'])->setStatusCode(404);
@@ -1413,7 +1483,35 @@ class MobileApi extends Controller
             return $this->response->setJSON(['status' => 'error', 'message' => 'الاسم مطلوب'])->setStatusCode(400);
         }
 
-        if ($role === 'teacher') {
+        if ($role === 'super_admin') {
+            if (empty($username)) {
+                return $this->response->setJSON(['status' => 'error', 'message' => 'اسم المستخدم مطلوب'])->setStatusCode(400);
+            }
+
+            $exists = $this->db->table('super')
+                ->where('super_id !=', $userId)
+                ->where('username', $username)
+                ->get()
+                ->getRowArray();
+            if ($exists) {
+                return $this->response->setJSON(['status' => 'error', 'message' => 'اسم المستخدم مستخدم بالفعل'])->setStatusCode(400);
+            }
+
+            $updateData = [
+                'name' => $name,
+                'username' => $username,
+                'email' => $email,
+                'phone' => $phone
+            ];
+
+            if (!empty($password)) {
+                $updateData['password'] = password_hash($password, PASSWORD_DEFAULT);
+            }
+
+            $this->db->table('super')->where('super_id', $userId)->update($updateData);
+
+            return $this->response->setJSON(['status' => 'success', 'message' => 'تم تحديث الملف الشخصي بنجاح']);
+        } else if ($role === 'teacher') {
             if (!empty($email)) {
                 $exists = $this->db->table('teacher')
                     ->where('teacher_id !=', $userId)
@@ -2046,6 +2144,306 @@ class MobileApi extends Controller
         }
 
         return $this->response->setJSON(['status' => 'error', 'message' => 'فشل حفظ ملف الصورة في الخادم']);
+    }
+
+    /**
+     * Super Admin: Get Cities List
+     * GET /api/superadmin/cities
+     */
+    public function getCities()
+    {
+        $session = $this->authenticateToken();
+        if (!$session || $session['role'] !== 'super_admin') {
+            return $this->response->setJSON(['status' => 'error', 'message' => 'غير مصرح لك بالوصول'])->setStatusCode(401);
+        }
+        $cities = $this->db->table('cities')->get()->getResultArray();
+        foreach ($cities as &$city) {
+            $city['schools_count'] = $this->db->table('schools')->where('city', $city['ID'])->countAllResults();
+        }
+        return $this->response->setJSON(['status' => 'success', 'cities' => $cities]);
+    }
+
+    /**
+     * Super Admin: Create City
+     * POST /api/superadmin/cities/create
+     */
+    public function createCity()
+    {
+        $session = $this->authenticateToken();
+        if (!$session || $session['role'] !== 'super_admin') {
+            return $this->response->setJSON(['status' => 'error', 'message' => 'غير مصرح لك بالوصول'])->setStatusCode(401);
+        }
+        $json = json_decode(file_get_contents('php://input'), true) ?? $_POST;
+        $name = $json['name'] ?? '';
+        if (empty($name)) {
+            return $this->response->setJSON(['status' => 'error', 'message' => 'اسم المدينة مطلوب'])->setStatusCode(400);
+        }
+        $this->db->table('cities')->insert(['name' => $name]);
+        return $this->response->setJSON(['status' => 'success', 'message' => 'تم إضافة المدينة بنجاح']);
+    }
+
+    /**
+     * Super Admin: Update City
+     * POST /api/superadmin/cities/edit/(:num)
+     */
+    public function updateCity($id)
+    {
+        $session = $this->authenticateToken();
+        if (!$session || $session['role'] !== 'super_admin') {
+            return $this->response->setJSON(['status' => 'error', 'message' => 'غير مصرح لك بالوصول'])->setStatusCode(401);
+        }
+        $json = json_decode(file_get_contents('php://input'), true) ?? $_POST;
+        $name = $json['name'] ?? '';
+        if (empty($name)) {
+            return $this->response->setJSON(['status' => 'error', 'message' => 'اسم المدينة مطلوب'])->setStatusCode(400);
+        }
+        $this->db->table('cities')->where('ID', $id)->update(['name' => $name]);
+        return $this->response->setJSON(['status' => 'success', 'message' => 'تم تحديث المدينة بنجاح']);
+    }
+
+    /**
+     * Super Admin: Delete City
+     * POST /api/superadmin/cities/delete/(:num)
+     */
+    public function deleteCity($id)
+    {
+        $session = $this->authenticateToken();
+        if (!$session || $session['role'] !== 'super_admin') {
+            return $this->response->setJSON(['status' => 'error', 'message' => 'غير مصرح لك بالوصول'])->setStatusCode(401);
+        }
+        $schoolsCount = $this->db->table('schools')->where('city', $id)->countAllResults();
+        if ($schoolsCount > 0) {
+            return $this->response->setJSON(['status' => 'error', 'message' => 'لا يمكن حذف المدينة لوجود مدارس مرتبطة بها'])->setStatusCode(400);
+        }
+        $this->db->table('cities')->where('ID', $id)->delete();
+        return $this->response->setJSON(['status' => 'success', 'message' => 'تم حذف المدينة بنجاح']);
+    }
+
+    /**
+     * Super Admin: Get Schools List
+     * GET /api/superadmin/schools
+     */
+    public function getSchools()
+    {
+        $session = $this->authenticateToken();
+        if (!$session || $session['role'] !== 'super_admin') {
+            return $this->response->setJSON(['status' => 'error', 'message' => 'غير مصرح لك بالوصول'])->setStatusCode(401);
+        }
+        $schools = $this->db->table('schools')
+            ->select('schools.*, cities.name as city_name')
+            ->join('cities', 'cities.ID = schools.city', 'left')
+            ->get()
+            ->getResultArray();
+        return $this->response->setJSON(['status' => 'success', 'schools' => $schools]);
+    }
+
+    /**
+     * Super Admin: Create School
+     * POST /api/superadmin/schools/create
+     */
+    public function createSchool()
+    {
+        $session = $this->authenticateToken();
+        if (!$session || $session['role'] !== 'super_admin') {
+            return $this->response->setJSON(['status' => 'error', 'message' => 'غير مصرح لك بالوصول'])->setStatusCode(401);
+        }
+        $json = json_decode(file_get_contents('php://input'), true) ?? $_POST;
+        $data = [
+            'name'    => $json['name'] ?? '',
+            'city'    => $json['city'] ?? null,
+            'address' => $json['address'] ?? '',
+            'email'   => $json['email'] ?? '',
+            'year'    => $json['year'] ?? '2025-2026',
+            'manager' => $json['manager'] ?? '',
+            'exams_manager' => $json['exams_manager'] ?? '',
+            'status'  => 1
+        ];
+        if (empty($data['name'])) {
+            return $this->response->setJSON(['status' => 'error', 'message' => 'اسم المدرسة مطلوب'])->setStatusCode(400);
+        }
+        $this->db->table('schools')->insert($data);
+        return $this->response->setJSON(['status' => 'success', 'message' => 'تم إضافة المدرسة بنجاح']);
+    }
+
+    /**
+     * Super Admin: Update School
+     * POST /api/superadmin/schools/edit/(:num)
+     */
+    public function updateSchool($id)
+    {
+        $session = $this->authenticateToken();
+        if (!$session || $session['role'] !== 'super_admin') {
+            return $this->response->setJSON(['status' => 'error', 'message' => 'غير مصرح لك بالوصول'])->setStatusCode(401);
+        }
+        $json = json_decode(file_get_contents('php://input'), true) ?? $_POST;
+        $data = [
+            'name'    => $json['name'] ?? '',
+            'city'    => $json['city'] ?? null,
+            'address' => $json['address'] ?? '',
+            'email'   => $json['email'] ?? '',
+            'year'    => $json['year'] ?? '2025-2026',
+            'manager' => $json['manager'] ?? '',
+            'exams_manager' => $json['exams_manager'] ?? ''
+        ];
+        if (empty($data['name'])) {
+            return $this->response->setJSON(['status' => 'error', 'message' => 'اسم المدرسة مطلوب'])->setStatusCode(400);
+        }
+        $this->db->table('schools')->where('ID', $id)->update($data);
+        return $this->response->setJSON(['status' => 'success', 'message' => 'تم تحديث بيانات المدرسة بنجاح']);
+    }
+
+    /**
+     * Super Admin: Delete School
+     * POST /api/superadmin/schools/delete/(:num)
+     */
+    public function deleteSchool($id)
+    {
+        $session = $this->authenticateToken();
+        if (!$session || $session['role'] !== 'super_admin') {
+            return $this->response->setJSON(['status' => 'error', 'message' => 'غير مصرح لك بالوصول'])->setStatusCode(401);
+        }
+        $studentsCount = $this->db->table('student')->where('school', $id)->countAllResults();
+        $teachersCount = $this->db->table('teacher')->where('school', $id)->countAllResults();
+        if ($studentsCount > 0 || $teachersCount > 0) {
+            return $this->response->setJSON(['status' => 'error', 'message' => 'لا يمكن حذف المدرسة لوجود طلاب أو معلمين مسجلين بها'])->setStatusCode(400);
+        }
+        $this->db->table('schools')->where('ID', $id)->delete();
+        return $this->response->setJSON(['status' => 'success', 'message' => 'تم حذف المدرسة بنجاح']);
+    }
+
+    /**
+     * Super Admin: Get Admins List
+     * GET /api/superadmin/admins
+     */
+    public function getAdmins()
+    {
+        $session = $this->authenticateToken();
+        if (!$session || $session['role'] !== 'super_admin') {
+            return $this->response->setJSON(['status' => 'error', 'message' => 'غير مصرح لك بالوصول'])->setStatusCode(401);
+        }
+        $admins = $this->db->table('admin')
+            ->select('admin.*, schools.name as school_name')
+            ->join('schools', 'schools.ID = admin.school', 'left')
+            ->get()
+            ->getResultArray();
+        return $this->response->setJSON(['status' => 'success', 'admins' => $admins]);
+    }
+
+    /**
+     * Super Admin: Create Admin Account
+     * POST /api/superadmin/admins/create
+     */
+    public function createAdmin()
+    {
+        $session = $this->authenticateToken();
+        if (!$session || $session['role'] !== 'super_admin') {
+            return $this->response->setJSON(['status' => 'error', 'message' => 'غير مصرح لك بالوصول'])->setStatusCode(401);
+        }
+        $json = json_decode(file_get_contents('php://input'), true) ?? $_POST;
+        $data = [
+            'name'         => $json['name'] ?? '',
+            'school'       => $json['school'] ?? null,
+            'username'     => $json['username'] ?? '',
+            'password'     => password_hash($json['password'] ?? '123456', PASSWORD_DEFAULT),
+            'phone'        => $json['phone'] ?? '',
+            'email'        => $json['email'] ?? '',
+            'status'       => 1,
+            'owner_status' => 1
+        ];
+        if (empty($data['name']) || empty($data['username'])) {
+            return $this->response->setJSON(['status' => 'error', 'message' => 'الاسم واسم المستخدم مطلوبان'])->setStatusCode(400);
+        }
+        $exists = $this->db->table('admin')->where('username', $data['username'])->countAllResults();
+        if ($exists > 0) {
+            return $this->response->setJSON(['status' => 'error', 'message' => 'اسم المستخدم موجود بالفعل'])->setStatusCode(400);
+        }
+        $this->db->table('admin')->insert($data);
+        return $this->response->setJSON(['status' => 'success', 'message' => 'تم إنشاء حساب المسؤول بنجاح']);
+    }
+
+    /**
+     * Super Admin: Update Admin Account
+     * POST /api/superadmin/admins/edit/(:num)
+     */
+    public function updateAdmin($id)
+    {
+        $session = $this->authenticateToken();
+        if (!$session || $session['role'] !== 'super_admin') {
+            return $this->response->setJSON(['status' => 'error', 'message' => 'غير مصرح لك بالوصول'])->setStatusCode(401);
+        }
+        $json = json_decode(file_get_contents('php://input'), true) ?? $_POST;
+        $data = [
+            'name'     => $json['name'] ?? '',
+            'school'   => $json['school'] ?? null,
+            'username' => $json['username'] ?? '',
+            'phone'    => $json['phone'] ?? '',
+            'email'    => $json['email'] ?? ''
+        ];
+        if (empty($data['name']) || empty($data['username'])) {
+            return $this->response->setJSON(['status' => 'error', 'message' => 'الاسم واسم المستخدم مطلوبان'])->setStatusCode(400);
+        }
+        $exists = $this->db->table('admin')->where('username', $data['username'])->where('admin_id !=', $id)->countAllResults();
+        if ($exists > 0) {
+            return $this->response->setJSON(['status' => 'error', 'message' => 'اسم المستخدم موجود بالفعل'])->setStatusCode(400);
+        }
+        if (!empty($json['password'])) {
+            $data['password'] = password_hash($json['password'], PASSWORD_DEFAULT);
+        }
+        $this->db->table('admin')->where('admin_id', $id)->update($data);
+        return $this->response->setJSON(['status' => 'success', 'message' => 'تم تحديث بيانات المسؤول بنجاح']);
+    }
+
+    /**
+     * Super Admin: Delete Admin Account
+     * POST /api/superadmin/admins/delete/(:num)
+     */
+    public function deleteAdmin($id)
+    {
+        $session = $this->authenticateToken();
+        if (!$session || $session['role'] !== 'super_admin') {
+            return $this->response->setJSON(['status' => 'error', 'message' => 'غير مصرح لك بالوصول'])->setStatusCode(401);
+        }
+        $this->db->table('admin')->where('admin_id', $id)->delete();
+        return $this->response->setJSON(['status' => 'success', 'message' => 'تم حذف حساب المسؤول بنجاح']);
+    }
+
+    /**
+     * Super Admin: Get Settings
+     * GET /api/superadmin/settings
+     */
+    public function getSettings()
+    {
+        $session = $this->authenticateToken();
+        if (!$session || $session['role'] !== 'super_admin') {
+            return $this->response->setJSON(['status' => 'error', 'message' => 'غير مصرح لك بالوصول'])->setStatusCode(401);
+        }
+        $settings = $this->db->table('settings')->get()->getResultArray();
+        return $this->response->setJSON(['status' => 'success', 'settings' => $settings]);
+    }
+
+    /**
+     * Super Admin: Update Settings
+     * POST /api/superadmin/settings/update
+     */
+    public function updateSettings()
+    {
+        $session = $this->authenticateToken();
+        if (!$session || $session['role'] !== 'super_admin') {
+            return $this->response->setJSON(['status' => 'error', 'message' => 'غير مصرح لك بالوصول'])->setStatusCode(401);
+        }
+        $json = json_decode(file_get_contents('php://input'), true) ?? $_POST;
+        $settings = $json['settings'] ?? [];
+        if (!empty($settings)) {
+            foreach ($settings as $type => $description) {
+                $exists = $this->db->table('settings')->where('type', $type)->get()->getRowArray();
+                if ($exists) {
+                    $this->db->table('settings')->where('type', $type)->update(['description' => $description]);
+                } else {
+                    $this->db->table('settings')->insert(['type' => $type, 'description' => $description]);
+                }
+            }
+        }
+        return $this->response->setJSON(['status' => 'success', 'message' => 'تم حفظ إعدادات النظام بنجاح']);
     }
 }
 

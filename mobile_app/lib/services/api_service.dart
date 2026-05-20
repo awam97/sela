@@ -700,5 +700,382 @@ class ApiService {
       };
     }
   }
+
+  /**
+   * Super Admin: Fetch Cities Catalog
+   */
+  static Future<Map<String, dynamic>> getCities() async {
+    try {
+      final url = await getBaseUrl();
+      final headers = await _getHeaders();
+      final response = await http.get(
+        Uri.parse('$url/superadmin/cities'),
+        headers: headers,
+      );
+
+      final decoded = jsonDecode(response.body);
+      if (response.statusCode == 200 && decoded['status'] == 'success') {
+        return {'status': 'success', 'cities': decoded['cities'] ?? []};
+      }
+      return {'status': 'error', 'message': decoded['message'] ?? 'فشل تحميل قائمة المدن'};
+    } catch (e) {
+      return {'status': 'error', 'message': 'حدث خطأ في الاتصال بالخادم لجلب المدن'};
+    }
+  }
+
+  /**
+   * Super Admin: Create City
+   */
+  static Future<Map<String, dynamic>> createCity(String name) async {
+    try {
+      final url = await getBaseUrl();
+      final headers = await _getHeaders();
+      final response = await http.post(
+        Uri.parse('$url/superadmin/cities/create'),
+        headers: headers,
+        body: jsonEncode({'name': name}),
+      );
+
+      final decoded = jsonDecode(response.body);
+      if (response.statusCode == 200 && decoded['status'] == 'success') {
+        return {'status': 'success', 'message': decoded['message']};
+      }
+      return {'status': 'error', 'message': decoded['message'] ?? 'فشل إضافة المدينة'};
+    } catch (e) {
+      return {'status': 'error', 'message': 'حدث خطأ في الاتصال بالخادم لإضافة المدينة'};
+    }
+  }
+
+  /**
+   * Super Admin: Update City
+   */
+  static Future<Map<String, dynamic>> updateCity(int id, String name) async {
+    try {
+      final url = await getBaseUrl();
+      final headers = await _getHeaders();
+      final response = await http.post(
+        Uri.parse('$url/superadmin/cities/edit/$id'),
+        headers: headers,
+        body: jsonEncode({'name': name}),
+      );
+
+      final decoded = jsonDecode(response.body);
+      if (response.statusCode == 200 && decoded['status'] == 'success') {
+        return {'status': 'success', 'message': decoded['message']};
+      }
+      return {'status': 'error', 'message': decoded['message'] ?? 'فشل تحديث المدينة'};
+    } catch (e) {
+      return {'status': 'error', 'message': 'حدث خطأ في الاتصال بالخادم لتحديث المدينة'};
+    }
+  }
+
+  /**
+   * Super Admin: Delete City
+   */
+  static Future<Map<String, dynamic>> deleteCity(int id) async {
+    try {
+      final url = await getBaseUrl();
+      final headers = await _getHeaders();
+      final response = await http.post(
+        Uri.parse('$url/superadmin/cities/delete/$id'),
+        headers: headers,
+      );
+
+      final decoded = jsonDecode(response.body);
+      if (response.statusCode == 200 && decoded['status'] == 'success') {
+        return {'status': 'success', 'message': decoded['message']};
+      }
+      return {'status': 'error', 'message': decoded['message'] ?? 'فشل حذف المدينة'};
+    } catch (e) {
+      return {'status': 'error', 'message': 'حدث خطأ في الاتصال بالخادم لحذف المدينة'};
+    }
+  }
+
+  /**
+   * Super Admin: Fetch Schools Catalog
+   */
+  static Future<Map<String, dynamic>> getSchools() async {
+    try {
+      final url = await getBaseUrl();
+      final headers = await _getHeaders();
+      final response = await http.get(
+        Uri.parse('$url/superadmin/schools'),
+        headers: headers,
+      );
+
+      final decoded = jsonDecode(response.body);
+      if (response.statusCode == 200 && decoded['status'] == 'success') {
+        return {'status': 'success', 'schools': decoded['schools'] ?? []};
+      }
+      return {'status': 'error', 'message': decoded['message'] ?? 'فشل تحميل قائمة المدارس'};
+    } catch (e) {
+      return {'status': 'error', 'message': 'حدث خطأ في الاتصال بالخادم لجلب المدارس'};
+    }
+  }
+
+  /**
+   * Super Admin: Create School
+   */
+  static Future<Map<String, dynamic>> createSchool({
+    required String name,
+    required int? city,
+    required String address,
+    required String email,
+    required String year,
+    required String manager,
+    required String examsManager,
+  }) async {
+    try {
+      final url = await getBaseUrl();
+      final headers = await _getHeaders();
+      final response = await http.post(
+        Uri.parse('$url/superadmin/schools/create'),
+        headers: headers,
+        body: jsonEncode({
+          'name': name,
+          'city': city,
+          'address': address,
+          'email': email,
+          'year': year,
+          'manager': manager,
+          'exams_manager': examsManager,
+        }),
+      );
+
+      final decoded = jsonDecode(response.body);
+      if (response.statusCode == 200 && decoded['status'] == 'success') {
+        return {'status': 'success', 'message': decoded['message']};
+      }
+      return {'status': 'error', 'message': decoded['message'] ?? 'فشل إضافة المدرسة'};
+    } catch (e) {
+      return {'status': 'error', 'message': 'حدث خطأ في الاتصال بالخادم لإضافة المدرسة'};
+    }
+  }
+
+  /**
+   * Super Admin: Update School
+   */
+  static Future<Map<String, dynamic>> updateSchool({
+    required int id,
+    required String name,
+    required int? city,
+    required String address,
+    required String email,
+    required String year,
+    required String manager,
+    required String examsManager,
+  }) async {
+    try {
+      final url = await getBaseUrl();
+      final headers = await _getHeaders();
+      final response = await http.post(
+        Uri.parse('$url/superadmin/schools/edit/$id'),
+        headers: headers,
+        body: jsonEncode({
+          'name': name,
+          'city': city,
+          'address': address,
+          'email': email,
+          'year': year,
+          'manager': manager,
+          'exams_manager': examsManager,
+        }),
+      );
+
+      final decoded = jsonDecode(response.body);
+      if (response.statusCode == 200 && decoded['status'] == 'success') {
+        return {'status': 'success', 'message': decoded['message']};
+      }
+      return {'status': 'error', 'message': decoded['message'] ?? 'فشل تحديث المدرسة'};
+    } catch (e) {
+      return {'status': 'error', 'message': 'حدث خطأ في الاتصال بالخادم لتحديث المدرسة'};
+    }
+  }
+
+  /**
+   * Super Admin: Delete School
+   */
+  static Future<Map<String, dynamic>> deleteSchool(int id) async {
+    try {
+      final url = await getBaseUrl();
+      final headers = await _getHeaders();
+      final response = await http.post(
+        Uri.parse('$url/superadmin/schools/delete/$id'),
+        headers: headers,
+      );
+
+      final decoded = jsonDecode(response.body);
+      if (response.statusCode == 200 && decoded['status'] == 'success') {
+        return {'status': 'success', 'message': decoded['message']};
+      }
+      return {'status': 'error', 'message': decoded['message'] ?? 'فشل حذف المدرسة'};
+    } catch (e) {
+      return {'status': 'error', 'message': 'حدث خطأ في الاتصال بالخادم لحذف المدرسة'};
+    }
+  }
+
+  /**
+   * Super Admin: Fetch School Admins
+   */
+  static Future<Map<String, dynamic>> getAdmins() async {
+    try {
+      final url = await getBaseUrl();
+      final headers = await _getHeaders();
+      final response = await http.get(
+        Uri.parse('$url/superadmin/admins'),
+        headers: headers,
+      );
+
+      final decoded = jsonDecode(response.body);
+      if (response.statusCode == 200 && decoded['status'] == 'success') {
+        return {'status': 'success', 'admins': decoded['admins'] ?? []};
+      }
+      return {'status': 'error', 'message': decoded['message'] ?? 'فشل تحميل قائمة المسؤولين'};
+    } catch (e) {
+      return {'status': 'error', 'message': 'حدث خطأ في الاتصال بالخادم لجلب المسؤولين'};
+    }
+  }
+
+  /**
+   * Super Admin: Create School Admin
+   */
+  static Future<Map<String, dynamic>> createAdmin({
+    required String name,
+    required int? school,
+    required String username,
+    required String password,
+    required String phone,
+    required String email,
+  }) async {
+    try {
+      final url = await getBaseUrl();
+      final headers = await _getHeaders();
+      final response = await http.post(
+        Uri.parse('$url/superadmin/admins/create'),
+        headers: headers,
+        body: jsonEncode({
+          'name': name,
+          'school': school,
+          'username': username,
+          'password': password,
+          'phone': phone,
+          'email': email,
+        }),
+      );
+
+      final decoded = jsonDecode(response.body);
+      if (response.statusCode == 200 && decoded['status'] == 'success') {
+        return {'status': 'success', 'message': decoded['message']};
+      }
+      return {'status': 'error', 'message': decoded['message'] ?? 'فشل إضافة المسؤول'};
+    } catch (e) {
+      return {'status': 'error', 'message': 'حدث خطأ في الاتصال بالخادم لإضافة المسؤول'};
+    }
+  }
+
+  /**
+   * Super Admin: Update School Admin
+   */
+  static Future<Map<String, dynamic>> updateAdmin({
+    required int id,
+    required String name,
+    required int? school,
+    required String username,
+    required String password,
+    required String phone,
+    required String email,
+  }) async {
+    try {
+      final url = await getBaseUrl();
+      final headers = await _getHeaders();
+      final response = await http.post(
+        Uri.parse('$url/superadmin/admins/edit/$id'),
+        headers: headers,
+        body: jsonEncode({
+          'name': name,
+          'school': school,
+          'username': username,
+          'password': password,
+          'phone': phone,
+          'email': email,
+        }),
+      );
+
+      final decoded = jsonDecode(response.body);
+      if (response.statusCode == 200 && decoded['status'] == 'success') {
+        return {'status': 'success', 'message': decoded['message']};
+      }
+      return {'status': 'error', 'message': decoded['message'] ?? 'فشل تحديث المسؤول'};
+    } catch (e) {
+      return {'status': 'error', 'message': 'حدث خطأ في الاتصال بالخادم لتحديث المسؤول'};
+    }
+  }
+
+  /**
+   * Super Admin: Delete School Admin
+   */
+  static Future<Map<String, dynamic>> deleteAdmin(int id) async {
+    try {
+      final url = await getBaseUrl();
+      final headers = await _getHeaders();
+      final response = await http.post(
+        Uri.parse('$url/superadmin/admins/delete/$id'),
+        headers: headers,
+      );
+
+      final decoded = jsonDecode(response.body);
+      if (response.statusCode == 200 && decoded['status'] == 'success') {
+        return {'status': 'success', 'message': decoded['message']};
+      }
+      return {'status': 'error', 'message': decoded['message'] ?? 'فشل حذف المسؤول'};
+    } catch (e) {
+      return {'status': 'error', 'message': 'حدث خطأ في الاتصال بالخادم لحذف المسؤول'};
+    }
+  }
+
+  /**
+   * Super Admin: Fetch System Settings
+   */
+  static Future<Map<String, dynamic>> getSettings() async {
+    try {
+      final url = await getBaseUrl();
+      final headers = await _getHeaders();
+      final response = await http.get(
+        Uri.parse('$url/superadmin/settings'),
+        headers: headers,
+      );
+
+      final decoded = jsonDecode(response.body);
+      if (response.statusCode == 200 && decoded['status'] == 'success') {
+        return {'status': 'success', 'settings': decoded['settings'] ?? []};
+      }
+      return {'status': 'error', 'message': decoded['message'] ?? 'فشل تحميل قائمة الإعدادات'};
+    } catch (e) {
+      return {'status': 'error', 'message': 'حدث خطأ في الاتصال بالخادم لجلب الإعدادات'};
+    }
+  }
+
+  /**
+   * Super Admin: Update System Settings
+   */
+  static Future<Map<String, dynamic>> updateSettings(Map<String, String> settings) async {
+    try {
+      final url = await getBaseUrl();
+      final headers = await _getHeaders();
+      final response = await http.post(
+        Uri.parse('$url/superadmin/settings/update'),
+        headers: headers,
+        body: jsonEncode({'settings': settings}),
+      );
+
+      final decoded = jsonDecode(response.body);
+      if (response.statusCode == 200 && decoded['status'] == 'success') {
+        return {'status': 'success', 'message': decoded['message']};
+      }
+      return {'status': 'error', 'message': decoded['message'] ?? 'فشل تحديث الإعدادات'};
+    } catch (e) {
+      return {'status': 'error', 'message': 'حدث خطأ في الاتصال بالخادم لتحديث الإعدادات'};
+    }
+  }
 }
 

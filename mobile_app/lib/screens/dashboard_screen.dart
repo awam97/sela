@@ -14,6 +14,10 @@ import 'marks_screen.dart';
 import 'student_photos_screen.dart';
 import 'student_affairs_screen.dart';
 import '../services/app_titles.dart';
+import 'manage_cities_screen.dart';
+import 'manage_schools_screen.dart';
+import 'manage_admins_screen.dart';
+import 'manage_settings_screen.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({Key? key}) : super(key: key);
@@ -339,52 +343,100 @@ class _DashboardScreenState extends State<DashboardScreen> {
               const SizedBox(height: 16),
 
               // Action buttons list
-              _buildActionButton(
-                context,
-                AppTitles.studentAffairs,
-                'إدارة ملفات الطلاب، الحضور والغياب، رصد الدرجات، الصور الشخصية، والطلبات الجديدة.',
-                Icons.school_rounded,
-                const Color(0xff192a56),
-                () => Navigator.push(
+              if (isSuper) ...[
+                _buildActionButton(
                   context,
-                  MaterialPageRoute(
-                    builder: (context) => StudentAffairsScreen(
-                      isSuper: isSuper,
-                      pendingCount: pendingCount,
-                      onBack: () => _fetchStats(),
-                    ),
+                  'إدارة المدن والمناطق',
+                  'إضافة وتعديل وحذف المدن والمناطق في النظام ومتابعة تغطيتها الجغرافية.',
+                  Icons.map_rounded,
+                  const Color(0xff192a56),
+                  () => Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const ManageCitiesScreen()),
                   ),
                 ),
-                badgeCount: pendingCount,
-              ),
-              const SizedBox(height: 12),
-
-              _buildActionButton(
-                context,
-                AppTitles.subjects,
-                'استعراض المواد والمنهج الدراسي والدرجات المطلوبة للنجاح.',
-                Icons.menu_book_rounded,
-                const Color(0xffc5a021),
-                () => Navigator.push(
+                const SizedBox(height: 12),
+                _buildActionButton(
                   context,
-                  MaterialPageRoute(builder: (context) => const SubjectsScreen()),
+                  'إدارة المدارس والمنشآت',
+                  'إدارة بيانات المدارس المشتركة في المنصة، وتوزيعها الجغرافي وربطها بالمدن.',
+                  Icons.apartment_rounded,
+                  const Color(0xffc5a021),
+                  () => Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const ManageSchoolsScreen()),
+                  ),
                 ),
-              ),
-              const SizedBox(height: 12),
-
-              _buildActionButton(
-                context,
-                AppTitles.finance,
-                'عرض خلاصة فواتير المدرسة وسجل العمليات والمدفوعات والمستحقات المتبقية.',
-                Icons.account_balance_wallet_rounded,
-                const Color(0xff16a34a),
-                () => Navigator.push(
+                const SizedBox(height: 12),
+                _buildActionButton(
                   context,
-                  MaterialPageRoute(builder: (context) => const FinanceScreen()),
+                  'إدارة الحسابات والمسؤولين',
+                  'إنشاء وتعديل وإدارة حسابات مدراء المدارس ومسؤولي النظام وصلاحياتهم.',
+                  Icons.supervised_user_circle_rounded,
+                  const Color(0xff16a34a),
+                  () => Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const ManageAdminsScreen()),
+                  ),
                 ),
-              ),
-              const SizedBox(height: 12),
-
+                const SizedBox(height: 12),
+                _buildActionButton(
+                  context,
+                  'إعدادات النظام العامة',
+                  'التحكم في إعدادات المنصة، تفعيل إرسال OTP عبر الواتساب والبريد ووضع الصيانة.',
+                  Icons.settings_suggest_rounded,
+                  Colors.purple,
+                  () => Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const ManageSettingsScreen()),
+                  ),
+                ),
+                const SizedBox(height: 12),
+              ] else ...[
+                _buildActionButton(
+                  context,
+                  AppTitles.studentAffairs,
+                  'إدارة ملفات الطلاب، الحضور والغياب، رصد الدرجات، الصور الشخصية، والطلبات الجديدة.',
+                  Icons.school_rounded,
+                  const Color(0xff192a56),
+                  () => Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => StudentAffairsScreen(
+                        isSuper: isSuper,
+                        pendingCount: pendingCount,
+                        onBack: () => _fetchStats(),
+                      ),
+                    ),
+                  ),
+                  badgeCount: pendingCount,
+                ),
+                const SizedBox(height: 12),
+                _buildActionButton(
+                  context,
+                  AppTitles.subjects,
+                  'استعراض المواد والمنهج الدراسي والدرجات المطلوبة للنجاح.',
+                  Icons.menu_book_rounded,
+                  const Color(0xffc5a021),
+                  () => Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const SubjectsScreen()),
+                  ),
+                ),
+                const SizedBox(height: 12),
+                _buildActionButton(
+                  context,
+                  AppTitles.finance,
+                  'عرض خلاصة فواتير المدرسة وسجل العمليات والمدفوعات والمستحقات المتبقية.',
+                  Icons.account_balance_wallet_rounded,
+                  const Color(0xff16a34a),
+                  () => Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const FinanceScreen()),
+                  ),
+                ),
+                const SizedBox(height: 12),
+              ],
               _buildActionButton(
                 context,
                 AppTitles.profile,

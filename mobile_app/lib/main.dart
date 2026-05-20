@@ -17,7 +17,7 @@ void main() async {
   final prefs = await SharedPreferences.getInstance();
   final token = prefs.getString('api_token');
   final role = prefs.getString('role');
-  final bool isLoggedIn = token != null && token.isNotEmpty && role != 'super_admin';
+  final bool isLoggedIn = token != null && token.isNotEmpty;
 
   runApp(SelaMobileApp(isLoggedIn: isLoggedIn));
 }

@@ -205,5 +205,27 @@ $routes->group('api', ['namespace' => 'App\Controllers\Api'], function ($routes)
     $routes->get('academic/marks/list', 'MobileApi::marksList');
     $routes->post('academic/marks/save', 'MobileApi::saveMarks');
     $routes->post('students/upload_photo', 'MobileApi::uploadStudentPhoto');
+
+    // Super Admin Cities Management
+    $routes->get('superadmin/cities', 'MobileApi::getCities');
+    $routes->post('superadmin/cities/create', 'MobileApi::createCity');
+    $routes->post('superadmin/cities/edit/(:num)', 'MobileApi::updateCity/$1');
+    $routes->post('superadmin/cities/delete/(:num)', 'MobileApi::deleteCity/$1');
+
+    // Super Admin Schools Management
+    $routes->get('superadmin/schools', 'MobileApi::getSchools');
+    $routes->post('superadmin/schools/create', 'MobileApi::createSchool');
+    $routes->post('superadmin/schools/edit/(:num)', 'MobileApi::updateSchool/$1');
+    $routes->post('superadmin/schools/delete/(:num)', 'MobileApi::deleteSchool/$1');
+
+    // Super Admin Admins Management
+    $routes->get('superadmin/admins', 'MobileApi::getAdmins');
+    $routes->post('superadmin/admins/create', 'MobileApi::createAdmin');
+    $routes->post('superadmin/admins/edit/(:num)', 'MobileApi::updateAdmin/$1');
+    $routes->post('superadmin/admins/delete/(:num)', 'MobileApi::deleteAdmin/$1');
+
+    // Super Admin Settings Management
+    $routes->get('superadmin/settings', 'MobileApi::getSettings');
+    $routes->post('superadmin/settings/update', 'MobileApi::updateSettings');
 });
 
